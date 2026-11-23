@@ -20,8 +20,24 @@ def create_app() -> Flask:
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    # Registra os models no metadata do SQLAlchemy
-    from app import models  
+    @jwt.unauthorized_loader
+    def token_ausente(_motivo):
+        return jsonify({"erro": "Token de autenticação não informado."}), 401
+
+    @jwt.invalid_token_loader
+    def token_invalido(_motivo):
+        return jsonify({"erro": "Token de autenticação inválido."}), 401
+
+    @jwt.expired_token_loader
+    def token_expirado(_jwt_header, _jwt_payload):
+        return jsonify({"erro": "Sessão expirada. Faça login novamente."}), 401
+
+    from app import models  # noqa: F401
+    from app.routes import auth_bp, guiche_bp, usuario_bp
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(usuario_bp)
+    app.register_blueprint(guiche_bp)
 
     @app.get("/api/health")
     def health():
