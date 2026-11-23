@@ -39,6 +39,7 @@ def create_app() -> Flask:
         guiche_bp,
         health_bp,
         painel_bp,
+        relatorio_bp,
         senha_bp,
         usuario_bp,
     )
@@ -50,5 +51,6 @@ def create_app() -> Flask:
     app.register_blueprint(senha_bp)
     app.register_blueprint(atendimento_bp)
     app.register_blueprint(painel_bp)
+    app.register_blueprint(relatorio_bp)
 
     return app
