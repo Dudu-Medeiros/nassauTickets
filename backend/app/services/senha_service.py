@@ -5,6 +5,7 @@ from sqlalchemy import func
 from app import db
 from app.models import ControleFila, LogAuditoria, Senha, StatusSenha, TipoSenha
 from app.utils.expediente import obter_status_expediente
+from app.utils.maquina_estados import validar_transicao
 
 
 class ErroNegocio(Exception):
@@ -90,6 +91,10 @@ def emitir_senha(tipo_informado: str) -> Senha:
                 detalhes=f"Senha {codigo} emitida no totem.",
             )
         )
+
+        valida, erro_msg = validar_transicao(senha.status, StatusSenha.AGUARDANDO.value)
+        if not valida:
+            raise ErroNegocio(erro_msg or "Transição inválida.", status_code=400)
 
         senha.status = StatusSenha.AGUARDANDO.value
         db.session.add(

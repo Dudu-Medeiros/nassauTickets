@@ -1,5 +1,6 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
+from flask import current_app
 from sqlalchemy import func
 
 from app import db
@@ -14,6 +15,7 @@ from app.models import (
 )
 from app.services.senha_service import ErroNegocio, _obter_ou_criar_trava_fila
 from app.utils.expediente import obter_status_expediente
+from app.utils.maquina_estados import validar_transicao
 
 STATUS_ATIVOS = (
     StatusSenha.CHAMADA.value,
@@ -26,6 +28,12 @@ def _obter_ordem_prioridades(ultima_prioridade: str | None) -> list[str]:
     if ultima_prioridade == TipoSenha.SP.value:
         return [TipoSenha.SE.value, TipoSenha.SG.value, TipoSenha.SP.value]
     return [TipoSenha.SP.value, TipoSenha.SE.value, TipoSenha.SG.value]
+
+
+def _garantir_transicao(status_atual: str, status_destino: str) -> None:
+    valida, erro_msg = validar_transicao(status_atual, status_destino)
+    if not valida:
+        raise ErroNegocio(erro_msg or "Transição de estado não permitida.", status_code=400)
 
 
 def _buscar_senha_para_transicao(senha_id: int, usuario: Usuario) -> Senha:
@@ -47,16 +55,138 @@ def _buscar_senha_para_transicao(senha_id: int, usuario: Usuario) -> Senha:
     return senha
 
 
+def processar_abandonos_automaticos() -> list[str]:
+    limite_segundos = int(current_app.config.get("TEMPO_LIMITE_ABANDONO_SEGUNDOS", 120))
+    agora = datetime.now()
+    corte = agora - timedelta(seconds=limite_segundos)
+    hoje = agora.date()
+
+    try:
+        senhas_expiradas = (
+            db.session.query(Senha)
+            .filter(
+                Senha.data_referencia == hoje,
+                Senha.status == StatusSenha.CHAMADA_NOVAMENTE.value,
+                Senha.segunda_chamada_em.is_not(None),
+                Senha.segunda_chamada_em <= corte,
+            )
+            .with_for_update()
+            .all()
+        )
+
+        if not senhas_expiradas:
+            return []
+
+        codigos = []
+        for senha in senhas_expiradas:
+            status_anterior = senha.status
+            _garantir_transicao(status_anterior, StatusSenha.NAO_COMPARECEU.value)
+
+            senha.status = StatusSenha.NAO_COMPARECEU.value
+            senha.fim_atendimento_em = agora
+            codigos.append(senha.codigo)
+
+            db.session.add(
+                LogAuditoria(
+                    senha_id=senha.id,
+                    atendente_id=senha.atendente_id,
+                    guiche_id=senha.guiche_id,
+                    status_anterior=status_anterior,
+                    status_novo=senha.status,
+                    acao="ABANDONO_AUTOMATICO",
+                    detalhes=(
+                        f"Senha {senha.codigo} marcada automaticamente como NÃO_COMPARECEU "
+                        f"após {limite_segundos}s sem comparecimento na 2ª chamada."
+                    ),
+                )
+            )
+
+        db.session.commit()
+        return codigos
+    except Exception:
+        db.session.rollback()
+        raise
+
+
+def processar_encerramento_automatico_expediente() -> dict:
+    status_expediente = obter_status_expediente()
+    if status_expediente["modo_demo"] or not status_expediente["apos_fim_expediente"]:
+        return {"executado": False, "total_descartadas": 0, "codigos_descartados": []}
+
+    hoje = date.today()
+    try:
+        senhas_pendentes = (
+            db.session.query(Senha)
+            .filter(
+                Senha.data_referencia == hoje,
+                Senha.status == StatusSenha.AGUARDANDO.value,
+                Senha.descartada_fim_expediente.is_(False),
+            )
+            .with_for_update()
+            .all()
+        )
+
+        if not senhas_pendentes:
+            return {"executado": True, "total_descartadas": 0, "codigos_descartados": []}
+
+        controle = _obter_ou_criar_trava_fila(hoje)
+        codigos = []
+        for senha in senhas_pendentes:
+            senha.descartada_fim_expediente = True
+            codigos.append(senha.codigo)
+            db.session.add(
+                LogAuditoria(
+                    senha_id=senha.id,
+                    status_anterior=senha.status,
+                    status_novo=senha.status,
+                    acao="DESCARTE_AUTOMATICO_17H",
+                    detalhes=(
+                        f"Senha {senha.codigo} descartada automaticamente após "
+                        f"o fim do expediente ({status_expediente['expediente_fim']})."
+                    ),
+                )
+            )
+
+        controle.ultima_prioridade_chamada = None
+        controle.data_referencia = hoje
+        db.session.commit()
+
+        return {
+            "executado": True,
+            "total_descartadas": len(codigos),
+            "codigos_descartados": codigos,
+        }
+    except Exception:
+        db.session.rollback()
+        raise
+
+
+def executar_rotinas_automaticas() -> dict:
+    abandonos = processar_abandonos_automaticos()
+    encerramento = processar_encerramento_automatico_expediente()
+    return {
+        "abandonos_automaticos": abandonos,
+        "total_abandonos_automaticos": len(abandonos),
+        "encerramento_automatico_expediente": encerramento,
+    }
+
+
 def chamar_proxima_senha(atendente: Usuario, guiche_id: int) -> Senha:
+    processar_abandonos_automaticos()
+
     status_expediente = obter_status_expediente()
     if not status_expediente["aberto"]:
+        encerramento = processar_encerramento_automatico_expediente()
         raise ErroNegocio(
             (
                 "Fora do expediente de atendimento "
                 f"({status_expediente['expediente_inicio']} às {status_expediente['expediente_fim']})."
             ),
             status_code=403,
-            extras={"expediente": status_expediente},
+            extras={
+                "expediente": status_expediente,
+                "encerramento_automatico": encerramento,
+            },
         )
 
     guiche = db.session.get(Guiche, guiche_id)
@@ -118,6 +248,9 @@ def chamar_proxima_senha(atendente: Usuario, guiche_id: int) -> Senha:
         if not senha_escolhida:
             raise ErroNegocio("Não há senhas aguardando na fila.", status_code=404)
 
+        status_anterior = senha_escolhida.status
+        _garantir_transicao(status_anterior, StatusSenha.CHAMADA.value)
+
         senha_escolhida.status = StatusSenha.CHAMADA.value
         senha_escolhida.primeira_chamada_em = agora
         senha_escolhida.guiche_id = guiche.id
@@ -131,8 +264,8 @@ def chamar_proxima_senha(atendente: Usuario, guiche_id: int) -> Senha:
                 senha_id=senha_escolhida.id,
                 atendente_id=atendente.id,
                 guiche_id=guiche.id,
-                status_anterior=StatusSenha.AGUARDANDO.value,
-                status_novo=StatusSenha.CHAMADA.value,
+                status_anterior=status_anterior,
+                status_novo=senha_escolhida.status,
                 acao="PRIMEIRA_CHAMADA",
                 detalhes=f"Senha {senha_escolhida.codigo} chamada no {guiche.nome}.",
             )
@@ -146,23 +279,14 @@ def chamar_proxima_senha(atendente: Usuario, guiche_id: int) -> Senha:
 
 
 def rechamar_senha(senha_id: int, usuario: Usuario) -> Senha:
+    processar_abandonos_automaticos()
+
     try:
         senha = _buscar_senha_para_transicao(senha_id, usuario)
-
-        if senha.status == StatusSenha.CHAMADA_NOVAMENTE.value:
-            raise ErroNegocio(
-                "A 2ª chamada já foi realizada. Inicie o atendimento ou registre ausência.",
-                status_code=400,
-            )
-
-        if senha.status != StatusSenha.CHAMADA.value:
-            raise ErroNegocio(
-                f"Não é possível rechamar uma senha no status {senha.status}.",
-                status_code=400,
-            )
+        status_anterior = senha.status
+        _garantir_transicao(status_anterior, StatusSenha.CHAMADA_NOVAMENTE.value)
 
         agora = datetime.now()
-        status_anterior = senha.status
         senha.status = StatusSenha.CHAMADA_NOVAMENTE.value
         senha.segunda_chamada_em = agora
 
@@ -186,20 +310,14 @@ def rechamar_senha(senha_id: int, usuario: Usuario) -> Senha:
 
 
 def iniciar_atendimento(senha_id: int, usuario: Usuario) -> Senha:
+    processar_abandonos_automaticos()
+
     try:
         senha = _buscar_senha_para_transicao(senha_id, usuario)
-
-        if senha.status not in (
-            StatusSenha.CHAMADA.value,
-            StatusSenha.CHAMADA_NOVAMENTE.value,
-        ):
-            raise ErroNegocio(
-                f"Não é possível iniciar atendimento para uma senha no status {senha.status}.",
-                status_code=400,
-            )
+        status_anterior = senha.status
+        _garantir_transicao(status_anterior, StatusSenha.EM_ATENDIMENTO.value)
 
         agora = datetime.now()
-        status_anterior = senha.status
         senha.status = StatusSenha.EM_ATENDIMENTO.value
         senha.inicio_atendimento_em = agora
 
@@ -225,12 +343,8 @@ def iniciar_atendimento(senha_id: int, usuario: Usuario) -> Senha:
 def finalizar_atendimento(senha_id: int, usuario: Usuario) -> Senha:
     try:
         senha = _buscar_senha_para_transicao(senha_id, usuario)
-
-        if senha.status != StatusSenha.EM_ATENDIMENTO.value:
-            raise ErroNegocio(
-                f"Só é possível finalizar senhas em EM_ATENDIMENTO (atual: {senha.status}).",
-                status_code=400,
-            )
+        status_anterior = senha.status
+        _garantir_transicao(status_anterior, StatusSenha.ATENDIDA.value)
 
         agora = datetime.now()
         duracao = (
@@ -239,7 +353,6 @@ def finalizar_atendimento(senha_id: int, usuario: Usuario) -> Senha:
             else 0
         )
 
-        status_anterior = senha.status
         senha.status = StatusSenha.ATENDIDA.value
         senha.fim_atendimento_em = agora
         senha.tempo_atendimento_segundos = duracao
@@ -264,23 +377,14 @@ def finalizar_atendimento(senha_id: int, usuario: Usuario) -> Senha:
 
 
 def marcar_nao_compareceu(senha_id: int, usuario: Usuario) -> Senha:
+    processar_abandonos_automaticos()
+
     try:
         senha = _buscar_senha_para_transicao(senha_id, usuario)
-
-        if senha.status == StatusSenha.CHAMADA.value:
-            raise ErroNegocio(
-                "Realize a 2ª chamada antes de registrar NÃO_COMPARECEU.",
-                status_code=400,
-            )
-
-        if senha.status != StatusSenha.CHAMADA_NOVAMENTE.value:
-            raise ErroNegocio(
-                f"Não é possível registrar ausência para uma senha no status {senha.status}.",
-                status_code=400,
-            )
+        status_anterior = senha.status
+        _garantir_transicao(status_anterior, StatusSenha.NAO_COMPARECEU.value)
 
         agora = datetime.now()
-        status_anterior = senha.status
         senha.status = StatusSenha.NAO_COMPARECEU.value
         senha.fim_atendimento_em = agora
 
@@ -320,10 +424,10 @@ def encerrar_expediente(gestor: Usuario) -> dict:
             .all()
         )
 
-        codigos = []
+        codigos_descartados = []
         for senha in senhas_pendentes:
             senha.descartada_fim_expediente = True
-            codigos.append(senha.codigo)
+            codigos_descartados.append(senha.codigo)
             db.session.add(
                 LogAuditoria(
                     senha_id=senha.id,
@@ -335,14 +439,30 @@ def encerrar_expediente(gestor: Usuario) -> dict:
                 )
             )
 
+        em_atendimento = Senha.query.filter(
+            Senha.data_referencia == hoje,
+            Senha.status == StatusSenha.EM_ATENDIMENTO.value,
+        ).all()
+
+        chamadas_em_aberto = Senha.query.filter(
+            Senha.data_referencia == hoje,
+            Senha.status.in_(
+                (StatusSenha.CHAMADA.value, StatusSenha.CHAMADA_NOVAMENTE.value)
+            ),
+        ).all()
+
         controle.ultima_prioridade_chamada = None
         controle.data_referencia = hoje
         db.session.commit()
 
         return {
-            "mensagem": "Expediente encerrado e fila remanescente descartada.",
-            "total_descartadas": len(codigos),
-            "codigos_descartados": codigos,
+            "mensagem": "Expediente encerrado. Atendimentos em curso foram mantidos e a fila pendente foi descartada.",
+            "total_descartadas": len(codigos_descartados),
+            "codigos_descartados": codigos_descartados,
+            "total_em_atendimento_mantidas": len(em_atendimento),
+            "codigos_em_atendimento_mantidas": [s.codigo for s in em_atendimento],
+            "total_chamadas_em_aberto": len(chamadas_em_aberto),
+            "codigos_chamadas_em_aberto": [s.codigo for s in chamadas_em_aberto],
         }
     except Exception:
         db.session.rollback()
@@ -350,6 +470,7 @@ def encerrar_expediente(gestor: Usuario) -> dict:
 
 
 def obter_resumo_atendimento(usuario: Usuario) -> dict:
+    rotinas = executar_rotinas_automaticas()
     hoje = date.today()
 
     senha_atual = Senha.query.filter(
@@ -387,4 +508,9 @@ def obter_resumo_atendimento(usuario: Usuario) -> dict:
         "fila_aguardando": fila,
         "ultima_prioridade_chamada": ultima_prioridade,
         "proxima_ordem_prioridade": _obter_ordem_prioridades(ultima_prioridade),
+        "tempo_limite_abandono_segundos": int(
+            current_app.config.get("TEMPO_LIMITE_ABANDONO_SEGUNDOS", 120)
+        ),
+        "expediente": obter_status_expediente(),
+        "rotinas_executadas": rotinas,
     }

@@ -1,9 +1,10 @@
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, current_app, g, jsonify, request
 
 from app.services import (
     ErroNegocio,
     chamar_proxima_senha,
     encerrar_expediente,
+    executar_rotinas_automaticas,
     finalizar_atendimento,
     iniciar_atendimento,
     marcar_nao_compareceu,
@@ -11,12 +12,32 @@ from app.services import (
     rechamar_senha,
 )
 from app.utils.auth import atendente_obrigatorio, gestor_obrigatorio
+from app.utils.maquina_estados import obter_mapa_transicoes
 
 atendimento_bp = Blueprint("atendimento", __name__, url_prefix="/api/atendimento")
 
 
 def _erro_resposta(erro: ErroNegocio):
     return jsonify({"erro": erro.mensagem, **erro.extras}), erro.status_code
+
+
+@atendimento_bp.get("/estados")
+@atendente_obrigatorio
+def listar_regras_estados():
+    return jsonify(
+        {
+            "transicoes_permitidas": obter_mapa_transicoes(),
+            "tempo_limite_abandono_segundos": int(
+                current_app.config.get("TEMPO_LIMITE_ABANDONO_SEGUNDOS", 120)
+            ),
+        }
+    ), 200
+
+
+@atendimento_bp.post("/rotinas")
+@atendente_obrigatorio
+def rodar_rotinas():
+    return jsonify(executar_rotinas_automaticas()), 200
 
 
 @atendimento_bp.get("/atual")

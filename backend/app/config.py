@@ -11,6 +11,13 @@ def _parse_bool(valor: str | None, padrao: bool = False) -> bool:
     return valor.strip().lower() in ("true", "1", "sim", "yes")
 
 
+def _parse_int(valor: str | None, padrao: int, minimo: int = 1) -> int:
+    try:
+        return max(minimo, int(valor)) if valor is not None else padrao
+    except ValueError:
+        return padrao
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key")
@@ -28,4 +35,7 @@ class Config:
     EXPEDIENTE_FIM = os.getenv("EXPEDIENTE_FIM", "17:00")
     MODO_DEMO_SEM_EXPEDIENTE = _parse_bool(
         os.getenv("MODO_DEMO_SEM_EXPEDIENTE"), padrao=False
+    )
+    TEMPO_LIMITE_ABANDONO_SEGUNDOS = _parse_int(
+        os.getenv("TEMPO_LIMITE_ABANDONO_SEGUNDOS"), padrao=120, minimo=1
     )

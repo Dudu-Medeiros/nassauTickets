@@ -16,11 +16,14 @@ def obter_status_expediente(agora: datetime | None = None) -> dict:
 
     inicio = _parse_horario(inicio_str)
     fim = _parse_horario(fim_str)
-    dentro_horario = inicio <= momento.time() <= fim
+    hora_atual = momento.time()
+    dentro_horario = inicio <= hora_atual <= fim
+    apos_fim_expediente = hora_atual > fim
 
     return {
         "aberto": True if modo_demo else dentro_horario,
         "dentro_horario_oficial": dentro_horario,
+        "apos_fim_expediente": apos_fim_expediente,
         "modo_demo": modo_demo,
         "expediente_inicio": inicio_str,
         "expediente_fim": fim_str,
