@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -13,8 +12,6 @@ jwt = JWTManager()
 
 
 def create_app() -> Flask:
-    load_dotenv()
-
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -22,6 +19,9 @@ def create_app() -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+
+    # Registra os models no metadata do SQLAlchemy
+    from app import models  
 
     @app.get("/api/health")
     def health():
