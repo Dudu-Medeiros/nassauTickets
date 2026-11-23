@@ -10,6 +10,7 @@ from app.services.atendimento_service import (
     processar_encerramento_automatico_expediente,
     rechamar_senha,
 )
+from app.services.painel_service import obter_ultimos_chamados_painel
 from app.services.senha_service import ErroNegocio, emitir_senha
 
 __all__ = [
@@ -22,6 +23,7 @@ __all__ = [
     "iniciar_atendimento",
     "marcar_nao_compareceu",
     "obter_resumo_atendimento",
+    "obter_ultimos_chamados_painel",
     "processar_abandonos_automaticos",
     "processar_encerramento_automatico_expediente",
     "rechamar_senha",
