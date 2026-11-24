@@ -1,13 +1,34 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { AuthProvider } from './contexts/AuthContext'
+import AtendentePage from './pages/AtendentePage'
+import GestorPage from './pages/GestorPage'
+import LoginPage from './pages/LoginPage'
+import NotFoundPage from './pages/NotFoundPage'
+import PainelPage from './pages/PainelPage'
+import TotemPage from './pages/TotemPage'
+
 export function App() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
-      <div className="max-w-md w-full rounded-xl border border-slate-800 bg-slate-900 p-8 text-center space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">nassauTickets</h1>
-        <p className="text-sm text-slate-400">
-          Sistema de Controle de Atendimento — Ambiente inicializado.
-        </p>
-      </div>
-    </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<TotemPage />} />
+          <Route path="/painel" element={<PainelPage />} />
+          <Route path="/login" element={<LoginPage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/atendente" element={<AtendentePage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute somenteGestor />}>
+            <Route path="/gestor" element={<GestorPage />} />
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
