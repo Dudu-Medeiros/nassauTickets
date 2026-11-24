@@ -120,11 +120,11 @@ export default function GestorPage() {
       subtitulo="Indicadores operacionais, relatórios diários/mensais, auditoria e gestão de cadastros."
     >
       <div className="space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-4">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 rounded-2xl border border-slate-800/90 bg-slate-900/90 p-3 sm:p-4">
           <div
             role="tablist"
             aria-label="Seções do painel do gestor"
-            className="flex flex-wrap items-center gap-1.5"
+            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 xl:pb-0 -mx-1 px-1"
           >
             {ABAS.map(({ id, rotulo, Icone }) => {
               const selecionada = abaAtiva === id
@@ -135,13 +135,13 @@ export default function GestorPage() {
                   type="button"
                   aria-selected={selecionada}
                   onClick={() => setAbaAtiva(id)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                  className={`inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-medium transition-all duration-200 cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
                     selecionada
-                      ? 'bg-sky-500 text-slate-950 font-semibold'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? 'bg-sky-500 text-slate-950 font-semibold shadow-sm shadow-sky-500/20'
+                      : 'text-slate-300 hover:bg-slate-800/90 hover:text-white'
                   }`}
                 >
-                  <Icone aria-hidden="true" className="h-4 w-4" />
+                  <Icone aria-hidden="true" className="h-4 w-4 shrink-0" />
                   <span>{rotulo}</span>
                 </button>
               )
@@ -149,7 +149,7 @@ export default function GestorPage() {
           </div>
 
           {abaAtiva !== 'cadastros' && (
-            <div className="flex flex-wrap items-center gap-2.5 border-t border-slate-800 pt-3 lg:border-t-0 lg:pt-0">
+            <div className="flex flex-wrap items-center gap-2.5 border-t border-slate-800 pt-3 xl:border-t-0 xl:pt-0 shrink-0">
               <div
                 role="group"
                 aria-label="Tipo de período"
@@ -158,9 +158,9 @@ export default function GestorPage() {
                 <button
                   type="button"
                   onClick={() => setPeriodo('diario')}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     periodo === 'diario'
-                      ? 'bg-slate-800 text-white'
+                      ? 'bg-slate-800 text-white shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -169,9 +169,9 @@ export default function GestorPage() {
                 <button
                   type="button"
                   onClick={() => setPeriodo('mensal')}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     periodo === 'mensal'
-                      ? 'bg-slate-800 text-white'
+                      ? 'bg-slate-800 text-white shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -185,7 +185,7 @@ export default function GestorPage() {
                   aria-label="Data de referência"
                   value={dataRef}
                   onChange={(e) => setDataRef(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-mono text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  className="min-h-9 flex-1 sm:flex-initial rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium tabular-nums text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                 />
               ) : (
                 <input
@@ -193,18 +193,20 @@ export default function GestorPage() {
                   aria-label="Mês de referência"
                   value={mesRef}
                   onChange={(e) => setMesRef(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-mono text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  className="min-h-9 flex-1 sm:flex-initial rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium tabular-nums text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                 />
               )}
 
               <Button
                 variant="secondary"
                 size="sm"
+                className="w-full sm:w-auto"
                 carregando={carregando}
+                textoCarregando="Atualizando..."
                 onClick={() => void handleAtualizarTudo()}
               >
                 <RefreshCw aria-hidden="true" className="h-4 w-4" />
-                Atualizar
+                <span>Atualizar</span>
               </Button>
             </div>
           )}
@@ -216,47 +218,49 @@ export default function GestorPage() {
           </Alert>
         )}
 
-        {abaAtiva === 'visao-geral' &&
-          (carregando ? (
-            <Card>
-              <div className="py-12 flex justify-center">
-                <Spinner tamanho="lg" rotulo="Consolidando indicadores..." />
-              </div>
-            </Card>
-          ) : (
-            <VisaoGeralSection
-              quantitativo={quantitativo}
-              tempoMedio={tempoMedio}
-              aoAtualizarDados={handleAtualizarTudo}
+        <div key={abaAtiva} className="animate-fade-in">
+          {abaAtiva === 'visao-geral' &&
+            (carregando ? (
+              <Card>
+                <div className="py-12 flex justify-center">
+                  <Spinner tamanho="lg" rotulo="Consolidando indicadores..." />
+                </div>
+              </Card>
+            ) : (
+              <VisaoGeralSection
+                quantitativo={quantitativo}
+                tempoMedio={tempoMedio}
+                aoAtualizarDados={handleAtualizarTudo}
+              />
+            ))}
+
+          {abaAtiva === 'desempenho' &&
+            (carregando ? (
+              <Card>
+                <div className="py-12 flex justify-center">
+                  <Spinner tamanho="lg" rotulo="Carregando desempenho..." />
+                </div>
+              </Card>
+            ) : (
+              <DesempenhoSection desempenho={desempenho} />
+            ))}
+
+          {abaAtiva === 'detalhado' && (
+            <RelatorioDetalhadoSection
+              filtroPeriodo={filtroPeriodo}
+              chaveAtualizacao={chaveAtualizacao}
             />
-          ))}
+          )}
 
-        {abaAtiva === 'desempenho' &&
-          (carregando ? (
-            <Card>
-              <div className="py-12 flex justify-center">
-                <Spinner tamanho="lg" rotulo="Carregando desempenho..." />
-              </div>
-            </Card>
-          ) : (
-            <DesempenhoSection desempenho={desempenho} />
-          ))}
+          {abaAtiva === 'auditoria' && (
+            <AuditoriaSection
+              filtroPeriodo={filtroPeriodo}
+              chaveAtualizacao={chaveAtualizacao}
+            />
+          )}
 
-        {abaAtiva === 'detalhado' && (
-          <RelatorioDetalhadoSection
-            filtroPeriodo={filtroPeriodo}
-            chaveAtualizacao={chaveAtualizacao}
-          />
-        )}
-
-        {abaAtiva === 'auditoria' && (
-          <AuditoriaSection
-            filtroPeriodo={filtroPeriodo}
-            chaveAtualizacao={chaveAtualizacao}
-          />
-        )}
-
-        {abaAtiva === 'cadastros' && <CadastrosSection />}
+          {abaAtiva === 'cadastros' && <CadastrosSection />}
+        </div>
       </div>
     </PageShell>
   )

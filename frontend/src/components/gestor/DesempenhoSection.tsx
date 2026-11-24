@@ -101,10 +101,10 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
         titulo="Desempenho por Atendente"
         subtitulo="Produtividade, taxa de conclusão e Tempo Médio individual no período."
         acao={
-          <div className="flex flex-wrap items-center gap-2">
+          <>
             <Button variant="secondary" size="sm" onClick={exportarCsvAtendentes}>
               <FileSpreadsheet aria-hidden="true" className="h-4 w-4" />
-              CSV
+              <span>CSV</span>
             </Button>
             <Button
               variant="secondary"
@@ -117,9 +117,9 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
               }
             >
               <Download aria-hidden="true" className="h-4 w-4" />
-              JSON
+              <span>JSON</span>
             </Button>
-          </div>
+          </>
         }
       >
         {desempenho.por_atendente.length === 0 ? (
@@ -127,8 +127,8 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
             Sem atendimentos registrados para atendentes neste período.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full min-w-[640px] text-left text-sm border-collapse">
               <thead>
                 <tr className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
                   <th className="py-3 pr-4">Atendente</th>
@@ -147,42 +147,51 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
                   )
 
                   return (
-                    <tr key={item.atendente_id} className="hover:bg-slate-800/30">
-                      <td className="py-3.5 pr-4 min-w-[210px]">
-                        <div className="flex items-center gap-2">
+                    <tr
+                      key={item.atendente_id}
+                      className="transition-colors duration-150 hover:bg-slate-800/40"
+                    >
+                      <td className="py-3.5 pr-4 min-w-[200px]">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="font-medium text-slate-100">
                             {item.atendente_nome}
                           </span>
                           {item.eh_gestor && <Badge tone="violet">Gestor</Badge>}
                           {!item.ativo && <Badge tone="neutral">Inativo</Badge>}
                         </div>
-                        <div className="mt-1.5 h-1.5 w-36 rounded-full bg-slate-800 overflow-hidden">
+                        <div className="mt-2 h-1.5 w-36 rounded-full bg-slate-800 overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-sky-400"
+                            className="h-full rounded-full bg-sky-400 transition-all duration-500"
                             style={{ width: `${larguraBarra}%` }}
                           />
                         </div>
                       </td>
-                      <td className="py-3.5 px-3 text-right font-mono text-slate-300">
+                      <td className="py-3.5 px-3 text-right tabular-nums text-slate-300">
                         {item.total_chamadas}
                       </td>
-                      <td className="py-3.5 px-3 text-right font-mono font-semibold text-emerald-300">
+                      <td className="py-3.5 px-3 text-right tabular-nums font-semibold text-emerald-300">
                         {item.atendidas}
                       </td>
-                      <td className="py-3.5 px-3 text-right font-mono text-rose-300">
+                      <td className="py-3.5 px-3 text-right tabular-nums text-rose-300">
                         {item.nao_compareceu}
                       </td>
-                      <td className="py-3.5 px-3 font-mono text-xs text-slate-300 whitespace-nowrap">
-                        <span className="text-amber-300">{item.por_tipo_atendidas.SP}</span>
+                      <td className="py-3.5 px-3 tabular-nums text-xs text-slate-300 whitespace-nowrap">
+                        <span className="text-amber-300 font-medium">
+                          {item.por_tipo_atendidas.SP}
+                        </span>
                         {' / '}
-                        <span className="text-sky-300">{item.por_tipo_atendidas.SE}</span>
+                        <span className="text-sky-300 font-medium">
+                          {item.por_tipo_atendidas.SE}
+                        </span>
                         {' / '}
-                        <span className="text-emerald-300">{item.por_tipo_atendidas.SG}</span>
+                        <span className="text-emerald-300 font-medium">
+                          {item.por_tipo_atendidas.SG}
+                        </span>
                       </td>
-                      <td className="py-3.5 px-3 text-right font-mono text-slate-200">
+                      <td className="py-3.5 px-3 text-right tabular-nums text-slate-200">
                         {item.taxa_conclusao_percentual}%
                       </td>
-                      <td className="py-3.5 pl-3 text-right font-mono text-sky-300">
+                      <td className="py-3.5 pl-3 text-right tabular-nums font-medium text-sky-300">
                         {item.tm_formatado ?? '--:--'}
                       </td>
                     </tr>
@@ -200,7 +209,7 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
         acao={
           <Button variant="secondary" size="sm" onClick={exportarCsvGuiches}>
             <FileSpreadsheet aria-hidden="true" className="h-4 w-4" />
-            Exportar CSV
+            <span>Exportar CSV</span>
           </Button>
         }
       >
@@ -209,7 +218,7 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
             Sem dados registrados para guichês neste período.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {desempenho.por_guiche.map((guiche) => {
               const larguraBarra = Math.round(
                 (guiche.atendidas / maxAtendidasGuiche) * 100,
@@ -218,14 +227,14 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
               return (
                 <div
                   key={guiche.guiche_id}
-                  className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 space-y-3"
+                  className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 space-y-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-700"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className="font-semibold text-white">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-white truncate">
                         {guiche.guiche_nome}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-400 tabular-nums">
                         Guichê nº {String(guiche.guiche_numero).padStart(2, '0')}
                       </p>
                     </div>
@@ -236,7 +245,7 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
 
                   <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-emerald-400"
+                      className="h-full rounded-full bg-emerald-400 transition-all duration-500"
                       style={{ width: `${larguraBarra}%` }}
                     />
                   </div>
@@ -244,19 +253,19 @@ export function DesempenhoSection({ desempenho }: DesempenhoSectionProps) {
                   <dl className="grid grid-cols-3 gap-2 text-xs pt-1">
                     <div>
                       <dt className="text-slate-500">Atendidas</dt>
-                      <dd className="font-mono text-base font-bold text-emerald-300">
+                      <dd className="tabular-nums text-base font-bold text-emerald-300">
                         {guiche.atendidas}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-slate-500">Ausências</dt>
-                      <dd className="font-mono text-base font-bold text-rose-300">
+                      <dd className="tabular-nums text-base font-bold text-rose-300">
                         {guiche.nao_compareceu}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-slate-500">TM</dt>
-                      <dd className="font-mono text-base font-bold text-sky-300">
+                      <dd className="tabular-nums text-base font-bold text-sky-300">
                         {guiche.tm_formatado ?? '--:--'}
                       </dd>
                     </div>

@@ -281,35 +281,38 @@ export default function PainelPage() {
         Pular para o painel de chamados
       </a>
 
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-40 border-b border-slate-800/90 bg-slate-900/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <Link
               to="/"
-              className="flex items-center gap-2 text-lg font-bold tracking-tight text-white rounded-lg px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="group flex items-center gap-2 text-base sm:text-lg font-bold tracking-tight text-white rounded-lg px-1 py-0.5 transition-colors hover:text-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 shrink-0"
             >
-              <Ticket aria-hidden="true" className="h-5 w-5 text-sky-400" />
+              <Ticket
+                aria-hidden="true"
+                className="h-5 w-5 text-sky-400 transition-transform duration-200 group-hover:-rotate-6"
+              />
               <span>nassauTickets</span>
             </Link>
 
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-slate-400 border-l border-slate-800 pl-4">
+            <span className="hidden md:inline-flex items-center gap-1.5 text-sm text-slate-400 border-l border-slate-800 pl-4">
               <Monitor aria-hidden="true" className="h-4 w-4 text-sky-400" />
               Painel de Chamados
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge tone={modoFallback ? 'rose' : 'emerald'}>
               {modoFallback ? (
-                <span className="inline-flex items-center gap-1.5">
+                <>
                   <WifiOff aria-hidden="true" className="h-3.5 w-3.5" />
-                  Modo contingência
-                </span>
+                  <span>Contingência</span>
+                </>
               ) : (
-                <span className="inline-flex items-center gap-1.5">
+                <>
                   <Wifi aria-hidden="true" className="h-3.5 w-3.5" />
-                  Online
-                </span>
+                  <span>Online</span>
+                </>
               )}
             </Badge>
 
@@ -325,7 +328,9 @@ export default function PainelPage() {
                 ) : (
                   <VolumeX aria-hidden="true" className="h-4 w-4" />
                 )}
-                {audioAtivo ? 'Áudio ativo' : 'Ativar áudio'}
+                <span className="hidden sm:inline">
+                  {audioAtivo ? 'Áudio ativo' : 'Ativar áudio'}
+                </span>
               </Button>
             )}
 
@@ -347,9 +352,9 @@ export default function PainelPage() {
 
             <div
               aria-label="Horário atual"
-              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950 px-3 py-1.5 font-mono text-sm font-semibold text-slate-100"
+              className="flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950 px-3 text-xs sm:text-sm font-semibold tabular-nums text-slate-100"
             >
-              <Clock aria-hidden="true" className="h-4 w-4 text-sky-400" />
+              <Clock aria-hidden="true" className="h-4 w-4 text-sky-400 shrink-0" />
               <span>
                 {relogio.toLocaleTimeString('pt-BR', {
                   hour: '2-digit',
@@ -365,14 +370,14 @@ export default function PainelPage() {
       <main
         id="painel-principal"
         tabIndex={-1}
-        className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 space-y-6 focus:outline-none"
+        className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-5 sm:px-6 sm:py-6 space-y-5 focus:outline-none animate-slide-up"
       >
         {modoFallback && (
           <Alert
             variant="warning"
             titulo="Conexão temporariamente interrompida — Modo de contingência ativo"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="space-y-1">
                 <p>
                   Não foi possível comunicar com o servidor. Exibindo as últimas
@@ -381,7 +386,7 @@ export default function PainelPage() {
                     ? ` (última sincronização: ${formatarDataHoraCurta(cacheSalvoEm)}).`
                     : '.'}
                 </p>
-                <p className="text-xs text-amber-200/80">
+                <p className="text-xs text-amber-200/80 tabular-nums">
                   Tentando reconectar automaticamente a cada{' '}
                   {INTERVALO_RETRY_OFFLINE_MS / 1000}s (tentativa #
                   {tentativasReconexao}).
@@ -390,12 +395,13 @@ export default function PainelPage() {
               <Button
                 variant="secondary"
                 size="sm"
+                className="w-full sm:w-auto shrink-0"
                 carregando={reconectandoAgora}
                 textoCarregando="Reconectando..."
                 onClick={() => void buscarChamados(true)}
               >
                 <RefreshCw aria-hidden="true" className="h-4 w-4" />
-                Reconectar agora
+                <span>Reconectar agora</span>
               </Button>
             </div>
           </Alert>
@@ -409,14 +415,19 @@ export default function PainelPage() {
         )}
 
         {suportaTts && !audioAtivo && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-500/30 bg-sky-950/30 px-4 py-2.5 text-sm text-sky-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-sky-500/30 bg-sky-950/30 px-4 py-3 text-sm text-sky-100">
             <span>
               Clique em <strong>Ativar áudio</strong> para habilitar os anúncios
               por voz automáticos nas novas chamadas.
             </span>
-            <Button variant="primary" size="sm" onClick={alternarAudio}>
+            <Button
+              variant="primary"
+              size="sm"
+              className="w-full sm:w-auto shrink-0"
+              onClick={alternarAudio}
+            >
               <Volume2 aria-hidden="true" className="h-4 w-4" />
-              Ativar áudio agora
+              <span>Ativar áudio agora</span>
             </Button>
           </div>
         )}
@@ -426,18 +437,18 @@ export default function PainelPage() {
             <Spinner tamanho="lg" rotulo="Carregando painel de chamados..." />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
             <section
               aria-label="Chamada atual em destaque"
               aria-live="assertive"
               aria-atomic="true"
-              className={`lg:col-span-7 flex flex-col justify-between rounded-3xl border p-8 sm:p-10 transition-all ${
+              className={`lg:col-span-7 flex flex-col justify-between rounded-3xl border p-5 sm:p-8 xl:p-10 transition-all duration-300 ${
                 ehSegundaChamadaAtual
                   ? 'border-amber-400/70 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950'
                   : infoStatusAtual?.encerrado
                     ? 'border-slate-700 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950'
                     : 'border-sky-500/40 bg-gradient-to-br from-sky-950/35 via-slate-900 to-slate-950'
-              } ${destaquePulsando ? 'ring-4 ring-sky-400/50' : ''}`}
+              } ${destaquePulsando ? 'ring-4 ring-sky-400/50 scale-[1.005]' : ''}`}
             >
               {chamadaAtual && infoStatusAtual ? (
                 <>
@@ -448,7 +459,7 @@ export default function PainelPage() {
                       </Badge>
                       <Badge
                         tone={infoStatusAtual.tone}
-                        className="text-sm px-3 py-1"
+                        className="text-xs sm:text-sm px-3 py-1"
                       >
                         {infoStatusAtual.rotulo}
                       </Badge>
@@ -462,25 +473,28 @@ export default function PainelPage() {
                         aria-label="Repetir anúncio por voz da senha atual"
                       >
                         <Megaphone aria-hidden="true" className="h-4 w-4" />
-                        Repetir voz
+                        <span>Repetir voz</span>
                       </Button>
                     )}
                   </div>
 
-                  <div className="my-10 text-center space-y-6">
-                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  <div
+                    key={gerarAssinaturaChamado(chamadaAtual)}
+                    className="my-8 sm:my-10 text-center space-y-5 sm:space-y-6 animate-pop-in"
+                  >
+                    <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
                       {infoStatusAtual.encerrado
                         ? 'Última senha chamada'
                         : 'Senha chamada'}
                     </p>
-                    <p className="font-mono text-5xl sm:text-7xl xl:text-8xl font-extrabold tracking-tight text-white break-all">
+                    <p className="tabular-nums text-4xl sm:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold tracking-tight text-white break-words">
                       {chamadaAtual.codigo}
                     </p>
-                    <div className="inline-flex flex-col items-center rounded-2xl border border-slate-700/80 bg-slate-950/80 px-8 py-4">
+                    <div className="inline-flex flex-col items-center rounded-2xl border border-slate-700/80 bg-slate-950/80 px-6 sm:px-8 py-3.5 sm:py-4">
                       <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                         {infoStatusAtual.encerrado ? 'Guichê' : 'Dirija-se ao'}
                       </span>
-                      <span className="mt-1 text-3xl sm:text-5xl font-bold text-sky-300">
+                      <span className="mt-1 text-2xl sm:text-4xl xl:text-5xl font-bold text-sky-300">
                         {chamadaAtual.guiche_nome ?? 'Recepção'}
                       </span>
                     </div>
@@ -489,26 +503,26 @@ export default function PainelPage() {
                   <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 pt-4 text-xs sm:text-sm text-slate-400">
                     <span>
                       Horário da chamada:{' '}
-                      <strong className="text-slate-200">
+                      <strong className="text-slate-200 tabular-nums">
                         {formatarHora(chamadaAtual.chamada_em)}
                       </strong>
                     </span>
                     {ultimoAnuncio && (
-                      <span className="truncate max-w-md text-slate-400">
+                      <span className="truncate max-w-full sm:max-w-md text-slate-400">
                         Voz: &ldquo;{ultimoAnuncio}&rdquo;
                       </span>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="my-auto py-16 text-center space-y-4">
+                <div className="my-auto py-12 sm:py-16 text-center space-y-4">
                   <div className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-sky-400">
                     <Monitor aria-hidden="true" className="h-8 w-8" />
                   </div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                  <h1 className="text-xl sm:text-3xl font-bold text-white">
                     Aguardando próximas chamadas
                   </h1>
-                  <p className="mx-auto max-w-md text-sm sm:text-base text-slate-400">
+                  <p className="mx-auto max-w-md text-sm sm:text-base text-slate-400 leading-relaxed">
                     Assim que um atendente realizar uma chamada, a senha e o
                     guichê aparecerão automaticamente em destaque nesta tela.
                   </p>
@@ -518,18 +532,20 @@ export default function PainelPage() {
 
             <aside
               aria-label="Últimas 5 senhas chamadas"
-              className="lg:col-span-5 flex flex-col rounded-3xl border border-slate-800 bg-slate-900/90 p-6"
+              className="lg:col-span-5 flex flex-col rounded-3xl border border-slate-800 bg-slate-900/90 p-5 sm:p-6"
             >
               <header className="mb-4 flex items-center justify-between gap-3 border-b border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">
+                  <h2 className="text-base sm:text-lg font-semibold text-white">
                     Últimas chamadas
                   </h2>
                   <p className="text-xs text-slate-400">
                     Histórico exclusivo das 5 chamadas mais recentes
                   </p>
                 </div>
-                <Badge tone="neutral">{ultimosChamados.length} / 5</Badge>
+                <Badge tone="neutral" className="tabular-nums">
+                  {ultimosChamados.length} / 5
+                </Badge>
               </header>
 
               {ultimosChamados.length === 0 ? (
@@ -545,15 +561,15 @@ export default function PainelPage() {
                     return (
                       <li
                         key={`${item.id}-${item.numero_chamada}`}
-                        className={`flex items-center justify-between gap-4 rounded-2xl border p-4 transition-colors ${
+                        className={`flex items-center justify-between gap-3 sm:gap-4 rounded-2xl border p-3.5 sm:p-4 transition-all duration-200 hover:border-slate-700 ${
                           ehTopo && !statusItem.encerrado
                             ? 'border-sky-500/50 bg-sky-950/30'
                             : 'border-slate-800 bg-slate-950/70'
-                        } ${statusItem.encerrado ? 'opacity-75' : ''}`}
+                        } ${statusItem.encerrado ? 'opacity-75 hover:opacity-100' : ''}`}
                       >
                         <div className="space-y-1.5 min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-xl sm:text-2xl font-bold text-white">
+                            <span className="tabular-nums text-lg sm:text-2xl font-bold text-white">
                               {item.codigo}
                             </span>
                             <Badge tone={obterTomPrioridade(item.tipo)}>
@@ -566,15 +582,17 @@ export default function PainelPage() {
                               {statusItem.rotulo}
                             </Badge>
                             <span aria-hidden="true">•</span>
-                            <span>{formatarHora(item.chamada_em)}</span>
+                            <span className="tabular-nums">
+                              {formatarHora(item.chamada_em)}
+                            </span>
                           </div>
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className="text-xs uppercase tracking-wider text-slate-500">
+                          <p className="text-[11px] uppercase tracking-wider text-slate-500">
                             Guichê
                           </p>
-                          <p className="text-lg sm:text-xl font-bold text-sky-300">
+                          <p className="text-base sm:text-xl font-bold text-sky-300">
                             {item.guiche_nome ?? '--'}
                           </p>
                         </div>
@@ -584,8 +602,8 @@ export default function PainelPage() {
                 </ol>
               )}
 
-              <footer className="mt-4 border-t border-slate-800 pt-3 flex items-center justify-between text-xs text-slate-500">
-                <span>
+              <footer className="mt-4 border-t border-slate-800 pt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                <span className="tabular-nums">
                   Atualizado em: {formatarHora(painel?.atualizado_em ?? null)}
                 </span>
                 <span>Atualização automática</span>
