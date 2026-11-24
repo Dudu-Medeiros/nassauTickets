@@ -196,6 +196,7 @@ Confira se `frontend/.env` aponta para `VITE_API_URL=http://localhost:5000/api`.
 | :--- | :--- | :--- | :--- |
 | **Gestor** | `gestor@nassautickets.com` | `gestor123` | `/gestor` |
 | **Atendente (AA)** | `ana@nassautickets.com` | `atendente123` | `/atendente` |
+| **Atendente (AA)** | `carlos@nassautickets.com` | `atendente123` | `/atendente` |
 
 Rotas públicas (sem login):
 * **Totem de Autoatendimento (AC):** `http://localhost:5173/`
