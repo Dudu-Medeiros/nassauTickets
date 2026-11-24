@@ -324,11 +324,11 @@ def popular_massa_relatorios(total_atendimentos: int = 60, taxa_abandono: float 
                 abandonos_criados += 1
             else:
                 if tipo == TipoSenha.SE.value:
-                    tm_segundos = random.randint(120, 300)
+                    tm_segundos = 60 if random.random() < 0.95 else 300
                 elif tipo == TipoSenha.SG.value:
-                    tm_segundos = random.randint(240, 660)
+                    tm_segundos = random.randint(120, 480)
                 else:
-                    tm_segundos = random.randint(360, 960)
+                    tm_segundos = random.randint(600, 1200)
 
                 dt_inicio = dt_chamada1 + timedelta(seconds=random.randint(15, 60))
                 dt_fim = dt_inicio + timedelta(seconds=tm_segundos)
