@@ -1,5 +1,10 @@
-from flask import Blueprint, current_app, g, jsonify, request
+import random
+import time
 
+from flask import Blueprint, current_app, g, jsonify, request
+from sqlalchemy.exc import OperationalError
+
+from app import db
 from app.services import (
     ErroNegocio,
     chamar_proxima_senha,
@@ -16,9 +21,17 @@ from app.utils.maquina_estados import obter_mapa_transicoes
 
 atendimento_bp = Blueprint("atendimento", __name__, url_prefix="/api/atendimento")
 
+CODIGOS_LOCK_MYSQL = {1205, 1213}
+
 
 def _erro_resposta(erro: ErroNegocio):
     return jsonify({"erro": erro.mensagem, **erro.extras}), erro.status_code
+
+
+def _eh_erro_deadlock(erro: OperationalError) -> bool:
+    orig = getattr(erro, "orig", None)
+    args = getattr(orig, "args", ())
+    return bool(args and args[0] in CODIGOS_LOCK_MYSQL)
 
 
 @atendimento_bp.get("/estados")
@@ -57,10 +70,23 @@ def chamar_proxima():
     except (TypeError, ValueError):
         return jsonify({"erro": "Informe um guiche_id inteiro válido."}), 400
 
-    try:
-        senha = chamar_proxima_senha(g.usuario_atual, guiche_id)
-    except ErroNegocio as erro:
-        return _erro_resposta(erro)
+    max_tentativas = 5
+    senha = None
+
+    for tentativa in range(max_tentativas):
+        try:
+            senha = chamar_proxima_senha(g.usuario_atual, guiche_id)
+            break
+        except ErroNegocio as erro:
+            return _erro_resposta(erro)
+        except OperationalError as erro:
+            db.session.rollback()
+            if _eh_erro_deadlock(erro) and tentativa < max_tentativas - 1:
+                time.sleep(random.uniform(0.03, 0.12))
+                continue
+            return jsonify(
+                {"erro": "Concorrência temporária na fila. Tente novamente."}
+            ), 409
 
     return jsonify(senha.to_dict()), 200
 
