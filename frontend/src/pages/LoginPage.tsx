@@ -91,6 +91,7 @@ export default function LoginPage() {
       <Card
         titulo="Entrar no sistema"
         subtitulo="Informe suas credenciais institucionais para acessar o terminal."
+        className="hover:border-slate-700/90"
       >
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4" noValidate>
           {erro && (
@@ -111,33 +112,31 @@ export default function LoginPage() {
             required
           />
 
-          <div className="space-y-1.5">
-            <div className="relative">
-              <Input
-                label="Senha"
-                type={mostrarSenha ? 'text' : 'password'}
-                name="senha"
-                autoComplete="current-password"
-                placeholder="Digite sua senha"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                disabled={enviando}
-                className="pr-11"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setMostrarSenha((atual) => !atual)}
-                aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
-                className="absolute right-2.5 top-[33px] rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 cursor-pointer"
-              >
-                {mostrarSenha ? (
-                  <EyeOff aria-hidden="true" className="h-4 w-4" />
-                ) : (
-                  <Eye aria-hidden="true" className="h-4 w-4" />
-                )}
-              </button>
-            </div>
+          <div className="relative">
+            <Input
+              label="Senha"
+              type={mostrarSenha ? 'text' : 'password'}
+              name="senha"
+              autoComplete="current-password"
+              placeholder="Digite sua senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              disabled={enviando}
+              className="pr-11"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setMostrarSenha((atual) => !atual)}
+              aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+              className="absolute right-2 top-[30px] inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors duration-200 hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 cursor-pointer"
+            >
+              {mostrarSenha ? (
+                <EyeOff aria-hidden="true" className="h-4 w-4" />
+              ) : (
+                <Eye aria-hidden="true" className="h-4 w-4" />
+              )}
+            </button>
           </div>
 
           <Button
@@ -146,10 +145,10 @@ export default function LoginPage() {
             size="lg"
             carregando={enviando}
             textoCarregando="Entrando..."
-            className="w-full"
+            className="w-full mt-2"
           >
             <LogIn aria-hidden="true" className="h-4 w-4" />
-            Entrar
+            <span>Entrar</span>
           </Button>
         </form>
       </Card>

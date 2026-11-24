@@ -109,7 +109,7 @@ export function AuditoriaSection({
       titulo="Trilha de Auditoria"
       subtitulo="Registro cronológico imutável de emissões, chamadas, atendimentos, abandonos e encerramentos."
       acao={
-        <div className="flex flex-wrap items-center gap-2">
+        <>
           <Button
             variant="secondary"
             size="sm"
@@ -117,7 +117,7 @@ export function AuditoriaSection({
             onClick={handleExportarCsv}
           >
             <FileSpreadsheet aria-hidden="true" className="h-4 w-4" />
-            Exportar CSV
+            <span>Exportar CSV</span>
           </Button>
           <Button
             variant="secondary"
@@ -132,14 +132,14 @@ export function AuditoriaSection({
             }
           >
             <Download aria-hidden="true" className="h-4 w-4" />
-            JSON
+            <span>JSON</span>
           </Button>
-        </div>
+        </>
       }
     >
       <div className="space-y-4">
-        <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
-          <div>
+        <div className="flex flex-col md:flex-row md:flex-wrap md:items-end gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
+          <div className="w-full md:w-auto">
             <label
               htmlFor="auditoria-acao"
               className="block text-xs text-slate-400 mb-1"
@@ -150,7 +150,7 @@ export function AuditoriaSection({
               id="auditoria-acao"
               value={acaoFiltro}
               onChange={(e) => setAcaoFiltro(e.target.value)}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="w-full md:w-auto min-h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             >
               <option value="">Todas as ações</option>
               {ACOES_AUDITORIA.map((acao) => (
@@ -163,9 +163,9 @@ export function AuditoriaSection({
 
           <form
             onSubmit={handleBuscarCodigo}
-            className="flex flex-wrap items-end gap-2"
+            className="flex flex-col sm:flex-row sm:items-end gap-2 w-full md:w-auto"
           >
-            <div>
+            <div className="flex-1 sm:flex-initial">
               <label
                 htmlFor="auditoria-codigo"
                 className="block text-xs text-slate-400 mb-1"
@@ -178,12 +178,17 @@ export function AuditoriaSection({
                 placeholder="Ex: 261124-SP001"
                 value={codigoInput}
                 onChange={(e) => setCodigoInput(e.target.value)}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm font-mono text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                className="w-full sm:w-48 min-h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm tabular-nums text-slate-100 placeholder:text-slate-500 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               />
             </div>
-            <Button type="submit" variant="secondary" size="sm">
+            <Button
+              type="submit"
+              variant="secondary"
+              size="sm"
+              className="w-full sm:w-auto"
+            >
               <Search aria-hidden="true" className="h-4 w-4" />
-              Buscar
+              <span>Buscar</span>
             </Button>
           </form>
 
@@ -191,18 +196,19 @@ export function AuditoriaSection({
             <Button
               variant="ghost"
               size="sm"
+              className="w-full md:w-auto"
               onClick={() => {
                 setAcaoFiltro('')
                 setCodigoInput('')
                 setCodigoAplicado('')
               }}
             >
-              Limpar
+              <span>Limpar</span>
             </Button>
           )}
 
           {relatorio && (
-            <span className="ml-auto text-xs text-slate-400 self-center">
+            <span className="md:ml-auto text-xs text-slate-400 md:self-center tabular-nums">
               Eventos:{' '}
               <strong className="text-slate-100">
                 {relatorio.total_eventos}
@@ -220,9 +226,12 @@ export function AuditoriaSection({
                 onClick={() =>
                   setAcaoFiltro((atual) => (atual === acao ? '' : acao))
                 }
-                className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full"
+                className="cursor-pointer transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full"
               >
-                <Badge tone={acaoFiltro === acao ? 'sky' : 'neutral'}>
+                <Badge
+                  tone={acaoFiltro === acao ? 'sky' : 'neutral'}
+                  className="tabular-nums"
+                >
                   {acao}: {total}
                 </Badge>
               </button>
@@ -245,8 +254,8 @@ export function AuditoriaSection({
             Nenhum evento de auditoria encontrado no período.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full min-w-[780px] text-left text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
                   <th className="py-3 pr-3">Data / Hora</th>
@@ -258,8 +267,11 @@ export function AuditoriaSection({
               </thead>
               <tbody className="divide-y divide-slate-800/80">
                 {relatorio.eventos.map((ev) => (
-                  <tr key={ev.id} className="hover:bg-slate-800/30">
-                    <td className="py-3 pr-3 font-mono text-xs text-slate-300 whitespace-nowrap">
+                  <tr
+                    key={ev.id}
+                    className="transition-colors duration-150 hover:bg-slate-800/40"
+                  >
+                    <td className="py-3 pr-3 tabular-nums text-xs text-slate-300 whitespace-nowrap">
                       {formatarDataHora(ev.criado_em)}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
@@ -278,7 +290,7 @@ export function AuditoriaSection({
                         {ev.acao}
                       </Badge>
                     </td>
-                    <td className="py-3 px-3 font-mono text-xs text-slate-300 whitespace-nowrap">
+                    <td className="py-3 px-3 text-xs text-slate-300 whitespace-nowrap">
                       {ev.status_anterior ?? '—'} → {ev.status_novo ?? '—'}
                     </td>
                     <td className="py-3 px-3 text-xs text-slate-300 whitespace-nowrap">

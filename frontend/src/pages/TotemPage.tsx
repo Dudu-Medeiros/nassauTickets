@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {
+  ArrowRight,
   CheckCircle2,
   Clock,
   FlaskConical,
@@ -43,7 +44,8 @@ const OPCOES_ATENDIMENTO: OpcaoAtendimento[] = [
     descricao:
       'Idosos (60+), gestantes, lactantes, pessoas com deficiência ou mobilidade reduzida.',
     badgeTone: 'amber',
-    bordaHover: 'hover:border-amber-400/70 focus-visible:ring-amber-300',
+    bordaHover:
+      'hover:border-amber-400/70 hover:shadow-lg hover:shadow-amber-500/10 focus-visible:ring-amber-300',
     iconeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
     Icone: HeartHandshake,
   },
@@ -53,7 +55,8 @@ const OPCOES_ATENDIMENTO: OpcaoAtendimento[] = [
     descricao:
       'Retirada rápida de resultados laboratoriais já liberados pelo sistema.',
     badgeTone: 'sky',
-    bordaHover: 'hover:border-sky-400/70 focus-visible:ring-sky-300',
+    bordaHover:
+      'hover:border-sky-400/70 hover:shadow-lg hover:shadow-sky-500/10 focus-visible:ring-sky-300',
     iconeClass: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
     Icone: FlaskConical,
   },
@@ -63,7 +66,8 @@ const OPCOES_ATENDIMENTO: OpcaoAtendimento[] = [
     descricao:
       'Coleta de exames, agendamentos, cadastros e demais atendimentos do laboratório.',
     badgeTone: 'emerald',
-    bordaHover: 'hover:border-emerald-400/70 focus-visible:ring-emerald-300',
+    bordaHover:
+      'hover:border-emerald-400/70 hover:shadow-lg hover:shadow-emerald-500/10 focus-visible:ring-emerald-300',
     iconeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
     Icone: Users,
   },
@@ -104,12 +108,8 @@ export default function TotemPage() {
       const dados = await obterStatusExpediente()
       setExpediente(dados)
       setApiOffline(false)
-    } catch (erro) {
-      if (axios.isAxiosError(erro) && !erro.response) {
-        setApiOffline(true)
-      } else {
-        setApiOffline(true)
-      }
+    } catch {
+      setApiOffline(true)
     } finally {
       if (!silencioso) {
         setCarregandoStatus(false)
@@ -197,7 +197,7 @@ export default function TotemPage() {
       <div className="space-y-6">
         {carregandoStatus && (
           <Card>
-            <div className="py-8 flex justify-center">
+            <div className="py-10 flex justify-center">
               <Spinner tamanho="lg" rotulo="Verificando disponibilidade do sistema..." />
             </div>
           </Card>
@@ -217,19 +217,21 @@ export default function TotemPage() {
                 onClick={() => void verificarExpediente(false)}
               >
                 <RefreshCw aria-hidden="true" className="h-4 w-4" />
-                Tentar reconectar
+                <span>Tentar reconectar</span>
               </Button>
             </div>
           </Alert>
         )}
 
         {!carregandoStatus && !apiOffline && expediente && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/75 px-4 py-3 text-sm">
             <div className="flex items-center gap-2 text-slate-300">
-              <Clock aria-hidden="true" className="h-4 w-4 text-sky-400" />
-              <span>
-                Expediente: <strong className="text-slate-100">{expediente.expediente_inicio}</strong>{' '}
-                às <strong className="text-slate-100">{expediente.expediente_fim}</strong>
+              <Clock aria-hidden="true" className="h-4 w-4 text-sky-400 shrink-0" />
+              <span className="tabular-nums">
+                Expediente:{' '}
+                <strong className="text-slate-100">{expediente.expediente_inicio}</strong>{' '}
+                às{' '}
+                <strong className="text-slate-100">{expediente.expediente_fim}</strong>
               </span>
             </div>
 
@@ -245,7 +247,7 @@ export default function TotemPage() {
         )}
 
         {!carregandoStatus && !apiOffline && expedienteFechado && expediente && (
-          <Card className="border-amber-500/40 bg-amber-950/20">
+          <Card className="border-amber-500/40 bg-amber-950/20 animate-fade-in">
             <div className="flex flex-col items-center text-center py-6 space-y-3">
               <div className="rounded-full border border-amber-500/30 bg-amber-500/15 p-3 text-amber-300">
                 <Clock aria-hidden="true" className="h-7 w-7" />
@@ -253,11 +255,11 @@ export default function TotemPage() {
               <h2 className="text-xl font-semibold text-amber-100">
                 Atendimento encerrado no momento
               </h2>
-              <p className="max-w-lg text-sm text-amber-200/90">
+              <p className="max-w-lg text-sm text-amber-200/90 leading-relaxed">
                 A emissão de senhas funciona das{' '}
-                <strong>{expediente.expediente_inicio}</strong> às{' '}
-                <strong>{expediente.expediente_fim}</strong>. Retorne dentro do
-                horário de expediente para retirar sua senha.
+                <strong className="tabular-nums">{expediente.expediente_inicio}</strong> às{' '}
+                <strong className="tabular-nums">{expediente.expediente_fim}</strong>. Retorne
+                dentro do horário de expediente para retirar sua senha.
               </p>
               <Button
                 variant="secondary"
@@ -265,7 +267,7 @@ export default function TotemPage() {
                 onClick={() => void verificarExpediente(false)}
               >
                 <RefreshCw aria-hidden="true" className="h-4 w-4" />
-                Atualizar horário
+                <span>Atualizar horário</span>
               </Button>
             </div>
           </Card>
@@ -280,7 +282,7 @@ export default function TotemPage() {
         {senhaEmitida ? (
           <Card
             aria-live="polite"
-            className="mx-auto max-w-xl border-emerald-500/40 bg-slate-900"
+            className="mx-auto max-w-xl border-emerald-500/40 bg-slate-900 animate-pop-in"
           >
             <div className="space-y-6 text-center">
               <div className="flex flex-col items-center gap-2">
@@ -295,8 +297,8 @@ export default function TotemPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950 p-6 space-y-3">
-                <div className="flex items-center justify-center gap-2">
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950 p-5 sm:p-6 space-y-4">
+                <div className="flex items-center justify-center">
                   <Badge tone={obterTomBadge(senhaEmitida.tipo)}>
                     {senhaEmitida.tipo} — {ROTULOS_TIPO_SENHA[senhaEmitida.tipo]}
                   </Badge>
@@ -304,17 +306,17 @@ export default function TotemPage() {
 
                 <p
                   aria-label={`Código da senha ${senhaEmitida.codigo}`}
-                  className="font-mono text-4xl sm:text-5xl font-bold tracking-wider text-white"
+                  className="tabular-nums text-3xl sm:text-5xl font-extrabold tracking-tight text-white break-all"
                 >
                   {senhaEmitida.codigo}
                 </p>
 
-                <dl className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-400 border-t border-slate-800">
+                <dl className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-400 border-t border-slate-800">
                   <div>
                     <dt className="uppercase tracking-wide text-slate-500">
                       Emitida em
                     </dt>
-                    <dd className="mt-0.5 text-slate-200 font-medium">
+                    <dd className="mt-1 text-slate-200 font-medium tabular-nums">
                       {formatarDataHora(senhaEmitida.emitida_em)}
                     </dd>
                   </div>
@@ -322,7 +324,7 @@ export default function TotemPage() {
                     <dt className="uppercase tracking-wide text-slate-500">
                       Situação
                     </dt>
-                    <dd className="mt-0.5 text-emerald-300 font-medium">
+                    <dd className="mt-1 text-emerald-300 font-medium">
                       Aguardando chamada
                     </dd>
                   </div>
@@ -331,21 +333,29 @@ export default function TotemPage() {
 
               <p className="text-xs text-slate-400">
                 Retornando automaticamente à tela inicial em{' '}
-                <strong className="text-slate-200">{segundosRestantes}s</strong>.
+                <strong className="text-slate-200 tabular-nums">
+                  {segundosRestantes}s
+                </strong>
+                .
               </p>
 
-              <div className="flex flex-wrap items-center justify-center gap-3 print:hidden">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 print:hidden">
                 <Button
                   variant="secondary"
+                  className="w-full sm:w-auto"
                   onClick={() => window.print()}
                   aria-label="Imprimir comprovante da senha"
                 >
                   <Printer aria-hidden="true" className="h-4 w-4" />
-                  Imprimir comprovante
+                  <span>Imprimir comprovante</span>
                 </Button>
-                <Button variant="primary" onClick={handleNovaSenha}>
+                <Button
+                  variant="primary"
+                  className="w-full sm:w-auto"
+                  onClick={handleNovaSenha}
+                >
                   <RotateCcw aria-hidden="true" className="h-4 w-4" />
-                  Emitir nova senha
+                  <span>Emitir nova senha</span>
                 </Button>
               </div>
             </div>
@@ -353,7 +363,7 @@ export default function TotemPage() {
         ) : (
           !carregandoStatus && (
             <section aria-label="Opções de emissão de senha">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                 {OPCOES_ATENDIMENTO.map((opcao) => {
                   const Icone = opcao.Icone
                   const emitindoEste = tipoEmitindo === opcao.tipo
@@ -366,12 +376,12 @@ export default function TotemPage() {
                       aria-busy={emitindoEste || undefined}
                       aria-label={`Emitir senha ${opcao.tipo} - ${opcao.titulo}`}
                       onClick={() => void handleEmitir(opcao.tipo)}
-                      className={`group flex flex-col justify-between text-left rounded-2xl border border-slate-800 bg-slate-900/90 p-6 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:opacity-45 disabled:cursor-not-allowed ${opcao.bordaHover}`}
+                      className={`group flex flex-col justify-between text-left rounded-2xl border border-slate-800 bg-slate-900/90 p-5 sm:p-6 transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:bg-slate-900 active:scale-[0.98] disabled:hover:translate-y-0 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:opacity-45 disabled:cursor-not-allowed ${opcao.bordaHover}`}
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between gap-3">
                           <span
-                            className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border ${opcao.iconeClass}`}
+                            className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border transition-transform duration-200 group-hover:scale-105 ${opcao.iconeClass}`}
                           >
                             <Icone aria-hidden="true" className="h-6 w-6" />
                           </span>
@@ -388,7 +398,7 @@ export default function TotemPage() {
                         </div>
                       </div>
 
-                      <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-sm font-semibold text-slate-200 group-hover:text-white">
+                      <div className="mt-6 pt-4 border-t border-slate-800/90 flex items-center justify-between text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">
                         <span>
                           {emitindoEste
                             ? 'Emitindo senha...'
@@ -406,9 +416,10 @@ export default function TotemPage() {
                             className="h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-t-transparent"
                           />
                         ) : (
-                          <span aria-hidden="true" className="text-sky-400">
-                            →
-                          </span>
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="h-4 w-4 text-sky-400 transition-transform duration-200 group-hover:translate-x-1"
+                          />
                         )}
                       </div>
                     </button>

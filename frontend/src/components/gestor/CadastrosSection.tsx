@@ -308,22 +308,18 @@ export function CadastrosSection() {
 
           <form
             onSubmit={(e) => void handleSalvarUsuario(e)}
-            className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-3"
+            className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-3.5"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-white">
                 {editandoUsuarioId === null
                   ? 'Novo Atendente'
                   : 'Editar Atendente'}
               </p>
               {editandoUsuarioId !== null && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={limparFormUsuario}
-                >
+                <Button variant="ghost" size="sm" onClick={limparFormUsuario}>
                   <X aria-hidden="true" className="h-4 w-4" />
-                  Cancelar
+                  <span>Cancelar</span>
                 </Button>
               )}
             </div>
@@ -367,17 +363,20 @@ export function CadastrosSection() {
               type="submit"
               variant="primary"
               size="sm"
+              className="w-full sm:w-auto"
               carregando={salvandoUsuario}
               textoCarregando="Salvando..."
             >
               <UserPlus aria-hidden="true" className="h-4 w-4" />
-              {editandoUsuarioId === null
-                ? 'Cadastrar Atendente'
-                : 'Salvar Alterações'}
+              <span>
+                {editandoUsuarioId === null
+                  ? 'Cadastrar Atendente'
+                  : 'Salvar Alterações'}
+              </span>
             </Button>
           </form>
 
-          <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-950/40">
+          <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-950/40 overflow-hidden">
             {usuarios.map((u) => {
               const ehProprioUsuario = u.id === usuarioLogado?.id
               const ocupando = processandoItem === `usuario-${u.id}`
@@ -385,7 +384,7 @@ export function CadastrosSection() {
               return (
                 <li
                   key={u.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-3.5"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3.5 transition-colors duration-150 hover:bg-slate-800/35"
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -399,31 +398,33 @@ export function CadastrosSection() {
                         {u.ativo ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </div>
-                    <p className="mt-0.5 text-xs text-slate-400 truncate">
+                    <p className="mt-1 text-xs text-slate-400 truncate">
                       {u.email}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Button
                       variant="secondary"
                       size="sm"
+                      className="flex-1 sm:flex-initial"
                       onClick={() => iniciarEdicaoUsuario(u)}
                       aria-label={`Editar ${u.nome}`}
                     >
                       <Edit3 aria-hidden="true" className="h-3.5 w-3.5" />
-                      Editar
+                      <span>Editar</span>
                     </Button>
 
                     {!ehProprioUsuario && !u.eh_gestor && (
                       <Button
                         variant={u.ativo ? 'danger' : 'success'}
                         size="sm"
+                        className="flex-1 sm:flex-initial"
                         carregando={ocupando}
                         onClick={() => void handleAlternarStatusUsuario(u)}
                       >
                         <Power aria-hidden="true" className="h-3.5 w-3.5" />
-                        {u.ativo ? 'Desativar' : 'Reativar'}
+                        <span>{u.ativo ? 'Desativar' : 'Reativar'}</span>
                       </Button>
                     )}
                   </div>
@@ -447,16 +448,16 @@ export function CadastrosSection() {
 
           <form
             onSubmit={(e) => void handleSalvarGuiche(e)}
-            className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-3"
+            className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-3.5"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-white">
                 {editandoGuicheId === null ? 'Novo Guichê' : 'Editar Guichê'}
               </p>
               {editandoGuicheId !== null && (
                 <Button variant="ghost" size="sm" onClick={limparFormGuiche}>
                   <X aria-hidden="true" className="h-4 w-4" />
-                  Cancelar
+                  <span>Cancelar</span>
                 </Button>
               )}
             </div>
@@ -483,27 +484,30 @@ export function CadastrosSection() {
               type="submit"
               variant="primary"
               size="sm"
+              className="w-full sm:w-auto"
               carregando={salvandoGuiche}
               textoCarregando="Salvando..."
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
-              {editandoGuicheId === null
-                ? 'Cadastrar Guichê'
-                : 'Salvar Alterações'}
+              <span>
+                {editandoGuicheId === null
+                  ? 'Cadastrar Guichê'
+                  : 'Salvar Alterações'}
+              </span>
             </Button>
           </form>
 
-          <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-950/40">
+          <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-950/40 overflow-hidden">
             {guiches.map((g) => {
               const ocupando = processandoItem === `guiche-${g.id}`
 
               return (
                 <li
                   key={g.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-3.5"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3.5 transition-colors duration-150 hover:bg-slate-800/35"
                 >
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-slate-100">
                         {g.nome}
                       </span>
@@ -511,29 +515,31 @@ export function CadastrosSection() {
                         {g.ativo ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </div>
-                    <p className="mt-0.5 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-slate-400 tabular-nums">
                       Número: {String(g.numero).padStart(2, '0')}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Button
                       variant="secondary"
                       size="sm"
+                      className="flex-1 sm:flex-initial"
                       onClick={() => iniciarEdicaoGuiche(g)}
                       aria-label={`Editar ${g.nome}`}
                     >
                       <Edit3 aria-hidden="true" className="h-3.5 w-3.5" />
-                      Editar
+                      <span>Editar</span>
                     </Button>
                     <Button
                       variant={g.ativo ? 'danger' : 'success'}
                       size="sm"
+                      className="flex-1 sm:flex-initial"
                       carregando={ocupando}
                       onClick={() => void handleAlternarStatusGuiche(g)}
                     >
                       <Power aria-hidden="true" className="h-3.5 w-3.5" />
-                      {g.ativo ? 'Desativar' : 'Reativar'}
+                      <span>{g.ativo ? 'Desativar' : 'Reativar'}</span>
                     </Button>
                   </div>
                 </li>

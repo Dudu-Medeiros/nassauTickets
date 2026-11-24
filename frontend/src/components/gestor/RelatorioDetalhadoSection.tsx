@@ -35,7 +35,9 @@ function tomTipo(tipo: TipoSenha): 'amber' | 'sky' | 'emerald' {
   return 'emerald'
 }
 
-function tomStatus(status: StatusSenha): 'emerald' | 'rose' | 'amber' | 'sky' | 'neutral' {
+function tomStatus(
+  status: StatusSenha,
+): 'emerald' | 'rose' | 'amber' | 'sky' | 'neutral' {
   switch (status) {
     case STATUS_SENHA.ATENDIDA:
       return 'emerald'
@@ -117,7 +119,7 @@ export function RelatorioDetalhadoSection({
       titulo="Relatório Detalhado de Senhas"
       subtitulo="Senhas não atendidas mantêm os campos de atendimento (início, fim, duração, guichê e atendente) vazios."
       acao={
-        <div className="flex flex-wrap items-center gap-2">
+        <>
           <Button
             variant="secondary"
             size="sm"
@@ -125,7 +127,7 @@ export function RelatorioDetalhadoSection({
             onClick={handleExportarCsv}
           >
             <FileSpreadsheet aria-hidden="true" className="h-4 w-4" />
-            Exportar CSV
+            <span>Exportar CSV</span>
           </Button>
           <Button
             variant="secondary"
@@ -140,19 +142,19 @@ export function RelatorioDetalhadoSection({
             }
           >
             <Download aria-hidden="true" className="h-4 w-4" />
-            JSON
+            <span>JSON</span>
           </Button>
-        </div>
+        </>
       }
     >
       <div className="space-y-4">
-        <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 self-center">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5">
+          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:mr-1 sm:self-center">
             <Filter aria-hidden="true" className="h-3.5 w-3.5" />
-            Filtros
+            <span>Filtros</span>
           </div>
 
-          <div>
+          <div className="w-full sm:w-auto">
             <label
               htmlFor="detalhado-tipo"
               className="block text-xs text-slate-400 mb-1"
@@ -163,7 +165,7 @@ export function RelatorioDetalhadoSection({
               id="detalhado-tipo"
               value={tipoFiltro}
               onChange={(e) => setTipoFiltro(e.target.value as TipoSenha | '')}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="w-full sm:w-auto min-h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             >
               <option value="">Todas</option>
               <option value="SP">SP — Prioritária</option>
@@ -172,7 +174,7 @@ export function RelatorioDetalhadoSection({
             </select>
           </div>
 
-          <div>
+          <div className="w-full sm:w-auto">
             <label
               htmlFor="detalhado-status"
               className="block text-xs text-slate-400 mb-1"
@@ -185,7 +187,7 @@ export function RelatorioDetalhadoSection({
               onChange={(e) =>
                 setStatusFiltro(e.target.value as StatusSenha | '')
               }
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="w-full sm:w-auto min-h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-100 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             >
               <option value="">Todos</option>
               {Object.values(STATUS_SENHA).map((st) => (
@@ -200,17 +202,18 @@ export function RelatorioDetalhadoSection({
             <Button
               variant="ghost"
               size="sm"
+              className="w-full sm:w-auto"
               onClick={() => {
                 setTipoFiltro('')
                 setStatusFiltro('')
               }}
             >
-              Limpar filtros
+              <span>Limpar filtros</span>
             </Button>
           )}
 
           {relatorio && (
-            <span className="ml-auto text-xs text-slate-400 self-center">
+            <span className="sm:ml-auto text-xs text-slate-400 sm:self-center tabular-nums">
               Total listado:{' '}
               <strong className="text-slate-100">{relatorio.total}</strong>
             </span>
@@ -232,8 +235,8 @@ export function RelatorioDetalhadoSection({
             Nenhuma senha encontrada com os filtros aplicados.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full min-w-[880px] text-left text-xs sm:text-sm border-collapse">
               <thead>
                 <tr className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
                   <th className="py-3 pr-3">Código</th>
@@ -249,8 +252,11 @@ export function RelatorioDetalhadoSection({
               </thead>
               <tbody className="divide-y divide-slate-800/80">
                 {relatorio.itens.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/30">
-                    <td className="py-3 pr-3 font-mono font-semibold text-white whitespace-nowrap">
+                  <tr
+                    key={item.id}
+                    className="transition-colors duration-150 hover:bg-slate-800/40"
+                  >
+                    <td className="py-3 pr-3 tabular-nums font-semibold text-white whitespace-nowrap">
                       {item.codigo}
                     </td>
                     <td className="py-3 px-3">
@@ -266,16 +272,16 @@ export function RelatorioDetalhadoSection({
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-3 font-mono text-xs text-slate-300 whitespace-nowrap">
+                    <td className="py-3 px-3 tabular-nums text-xs text-slate-300 whitespace-nowrap">
                       {formatarDataHora(item.emitida_em)}
                     </td>
-                    <td className="py-3 px-3 font-mono text-xs text-slate-300 whitespace-nowrap">
+                    <td className="py-3 px-3 tabular-nums text-xs text-slate-300 whitespace-nowrap">
                       {formatarDataHora(item.inicio_atendimento_em)}
                     </td>
-                    <td className="py-3 px-3 font-mono text-xs text-slate-300 whitespace-nowrap">
+                    <td className="py-3 px-3 tabular-nums text-xs text-slate-300 whitespace-nowrap">
                       {formatarDataHora(item.fim_atendimento_em)}
                     </td>
-                    <td className="py-3 px-3 text-right font-mono text-sky-300 whitespace-nowrap">
+                    <td className="py-3 px-3 text-right tabular-nums font-medium text-sky-300 whitespace-nowrap">
                       {item.tempo_atendimento_formatado ?? '—'}
                     </td>
                     <td className="py-3 px-3 text-slate-200 whitespace-nowrap">

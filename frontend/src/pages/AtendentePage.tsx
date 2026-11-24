@@ -370,9 +370,9 @@ export default function AtendentePage() {
             </Alert>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-8 space-y-6">
-              <Card className="p-5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+            <div className="lg:col-span-8 space-y-5 sm:space-y-6">
+              <Card className="p-4 sm:p-5">
                 {guiches.length === 0 ? (
                   <Alert variant="warning" titulo="Nenhum guichê ativo">
                     Solicite ao Gestor o cadastro ou ativação de um guichê para
@@ -380,27 +380,25 @@ export default function AtendentePage() {
                   </Alert>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/15 text-sky-300">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/15 text-sky-300">
                           <Monitor aria-hidden="true" className="h-5 w-5" />
                         </span>
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs uppercase tracking-wider text-slate-400">
                             Posto de trabalho ativo
                           </p>
                           <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                            <p className="text-base font-semibold text-white">
+                            <p className="text-base font-semibold text-white truncate">
                               {guicheAtual
                                 ? guicheAtual.nome
                                 : 'Nenhum guichê selecionado'}
                             </p>
                             {senhaAtual ? (
                               <Badge tone="amber">
-                                <span className="inline-flex items-center gap-1">
-                                  <Lock aria-hidden="true" className="h-3 w-3" />
-                                  Bloqueado durante atendimento
-                                </span>
+                                <Lock aria-hidden="true" className="h-3 w-3" />
+                                <span>Bloqueado durante atendimento</span>
                               </Badge>
                             ) : (
                               <Badge tone="emerald">Livre</Badge>
@@ -409,34 +407,38 @@ export default function AtendentePage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 shrink-0">
                         {guicheAtual && (
                           <Button
                             variant="secondary"
                             size="sm"
+                            className="flex-1 sm:flex-initial"
                             disabled={senhaAtual !== null || operacaoOcupada}
                             onClick={() => setTrocandoGuiche((atual) => !atual)}
                           >
                             <ArrowLeftRight aria-hidden="true" className="h-4 w-4" />
-                            {trocandoGuiche ? 'Fechar seleção' : 'Trocar guichê'}
+                            <span>
+                              {trocandoGuiche ? 'Fechar seleção' : 'Trocar guichê'}
+                            </span>
                           </Button>
                         )}
 
                         <Button
                           variant="secondary"
                           size="sm"
+                          className="flex-1 sm:flex-initial"
                           carregando={atualizando}
                           textoCarregando="Atualizando..."
                           onClick={() => void sincronizarDados(false)}
                         >
                           <RefreshCw aria-hidden="true" className="h-4 w-4" />
-                          Atualizar
+                          <span>Atualizar</span>
                         </Button>
                       </div>
                     </div>
 
                     {exibirSeletorGuiche && (
-                      <div className="border-t border-slate-800 pt-4 space-y-2.5">
+                      <div className="border-t border-slate-800 pt-4 space-y-2.5 animate-fade-in">
                         <p className="text-xs text-slate-400">
                           Selecione em qual guichê físico você vai operar:
                         </p>
@@ -455,13 +457,13 @@ export default function AtendentePage() {
                                 aria-checked={selecionado}
                                 disabled={operacaoOcupada}
                                 onClick={() => handleSelecionarGuiche(guiche.id)}
-                                className={`rounded-xl border px-3.5 py-2.5 text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:cursor-not-allowed ${
+                                className={`rounded-xl border px-3.5 py-2.5 text-left transition-all duration-200 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:cursor-not-allowed ${
                                   selecionado
-                                    ? 'border-sky-400 bg-sky-500/15 text-white'
-                                    : 'border-slate-800 bg-slate-950/70 text-slate-300 hover:border-slate-700 hover:text-white'
+                                    ? 'border-sky-400 bg-sky-500/15 text-white shadow-sm shadow-sky-500/10'
+                                    : 'border-slate-800 bg-slate-950/70 text-slate-300 hover:border-slate-600 hover:bg-slate-900 hover:text-white'
                                 }`}
                               >
-                                <p className="text-[11px] uppercase tracking-wider text-slate-400">
+                                <p className="text-[11px] uppercase tracking-wider text-slate-400 tabular-nums">
                                   Nº {String(guiche.numero).padStart(2, '0')}
                                 </p>
                                 <p className="mt-0.5 text-sm font-semibold truncate">
@@ -486,9 +488,9 @@ export default function AtendentePage() {
                 }
               >
                 {senhaAtual ? (
-                  <div className="space-y-6">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 space-y-5">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="space-y-5 sm:space-y-6 animate-pop-in">
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 sm:p-6 space-y-5">
+                      <div className="flex flex-wrap items-center justify-between gap-2.5">
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge tone={tomPrioridade(senhaAtual.tipo)}>
                             {senhaAtual.tipo} — {ROTULOS_TIPO_SENHA[senhaAtual.tipo]}
@@ -504,11 +506,11 @@ export default function AtendentePage() {
                       </div>
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs uppercase tracking-wider text-slate-500">
                             Código da senha
                           </p>
-                          <p className="mt-1 font-mono text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+                          <p className="mt-1 tabular-nums text-3xl sm:text-5xl font-extrabold tracking-tight text-white break-all">
                             {senhaAtual.codigo}
                           </p>
                         </div>
@@ -516,7 +518,7 @@ export default function AtendentePage() {
                         {emAtendimento && (
                           <div
                             aria-live="off"
-                            className="rounded-2xl border border-emerald-500/40 bg-emerald-950/40 px-5 py-3 text-center sm:text-right"
+                            className="rounded-2xl border border-emerald-500/40 bg-emerald-950/40 px-5 py-3 text-center sm:text-right shrink-0"
                           >
                             <p className="text-xs font-medium uppercase tracking-wider text-emerald-300 flex items-center justify-center sm:justify-end gap-1.5">
                               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
@@ -524,7 +526,7 @@ export default function AtendentePage() {
                             </p>
                             <p
                               aria-label={`Tempo decorrido ${formatarDuracao(segundosEmAtendimento)}`}
-                              className="mt-1 font-mono text-3xl sm:text-4xl font-bold text-emerald-200"
+                              className="mt-1 tabular-nums text-3xl sm:text-4xl font-bold text-emerald-200"
                             >
                               {formatarDuracao(segundosEmAtendimento)}
                             </p>
@@ -532,12 +534,12 @@ export default function AtendentePage() {
                         )}
 
                         {emSegundaChamada && (
-                          <div className="rounded-2xl border border-amber-500/40 bg-amber-950/40 px-5 py-3 text-center sm:text-right">
+                          <div className="rounded-2xl border border-amber-500/40 bg-amber-950/40 px-5 py-3 text-center sm:text-right shrink-0">
                             <p className="text-xs font-medium uppercase tracking-wider text-amber-300 flex items-center justify-center sm:justify-end gap-1.5">
                               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
                               Abandono automático em
                             </p>
-                            <p className="mt-1 font-mono text-3xl font-bold text-amber-200">
+                            <p className="mt-1 tabular-nums text-3xl font-bold text-amber-200">
                               {formatarDuracao(segundosAteAbandono)}
                             </p>
                           </div>
@@ -547,44 +549,45 @@ export default function AtendentePage() {
                       <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-800 pt-4 text-xs">
                         <div>
                           <dt className="text-slate-500">Emitida</dt>
-                          <dd className="mt-0.5 font-mono text-slate-200">
+                          <dd className="mt-0.5 tabular-nums font-medium text-slate-200">
                             {formatarHora(senhaAtual.emitida_em)}
                           </dd>
                         </div>
                         <div>
                           <dt className="text-slate-500">1ª chamada</dt>
-                          <dd className="mt-0.5 font-mono text-slate-200">
+                          <dd className="mt-0.5 tabular-nums font-medium text-slate-200">
                             {formatarHora(senhaAtual.primeira_chamada_em)}
                           </dd>
                         </div>
                         <div>
                           <dt className="text-slate-500">2ª chamada</dt>
-                          <dd className="mt-0.5 font-mono text-slate-200">
+                          <dd className="mt-0.5 tabular-nums font-medium text-slate-200">
                             {formatarHora(senhaAtual.segunda_chamada_em)}
                           </dd>
                         </div>
                         <div>
                           <dt className="text-slate-500">Início</dt>
-                          <dd className="mt-0.5 font-mono text-slate-200">
+                          <dd className="mt-0.5 tabular-nums font-medium text-slate-200">
                             {formatarHora(senhaAtual.inicio_atendimento_em)}
                           </dd>
                         </div>
                       </dl>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
                       {(senhaAtual.status === STATUS_SENHA.CHAMADA ||
                         senhaAtual.status === STATUS_SENHA.CHAMADA_NOVAMENTE) && (
                         <Button
                           variant="success"
                           size="lg"
+                          className="w-full sm:w-auto"
                           disabled={operacaoOcupada}
                           carregando={acaoEmCurso === 'iniciar'}
                           textoCarregando="Iniciando..."
                           onClick={() => void handleAcaoSenha('iniciar')}
                         >
                           <Play aria-hidden="true" className="h-4 w-4" />
-                          Iniciar Atendimento
+                          <span>Iniciar Atendimento</span>
                         </Button>
                       )}
 
@@ -592,13 +595,14 @@ export default function AtendentePage() {
                         <Button
                           variant="secondary"
                           size="lg"
+                          className="w-full sm:w-auto"
                           disabled={operacaoOcupada}
                           carregando={acaoEmCurso === 'rechamar'}
                           textoCarregando="Rechamando..."
                           onClick={() => void handleAcaoSenha('rechamar')}
                         >
                           <Megaphone aria-hidden="true" className="h-4 w-4" />
-                          Chamar Novamente
+                          <span>Chamar Novamente</span>
                         </Button>
                       )}
 
@@ -606,13 +610,14 @@ export default function AtendentePage() {
                         <Button
                           variant="danger"
                           size="lg"
+                          className="w-full sm:w-auto"
                           disabled={operacaoOcupada}
                           carregando={acaoEmCurso === 'nao-compareceu'}
                           textoCarregando="Registrando..."
                           onClick={() => void handleAcaoSenha('nao-compareceu')}
                         >
                           <UserX aria-hidden="true" className="h-4 w-4" />
-                          Não Compareceu
+                          <span>Não Compareceu</span>
                         </Button>
                       )}
 
@@ -620,19 +625,20 @@ export default function AtendentePage() {
                         <Button
                           variant="primary"
                           size="lg"
+                          className="w-full sm:w-auto"
                           disabled={operacaoOcupada}
                           carregando={acaoEmCurso === 'finalizar'}
                           textoCarregando="Finalizando..."
                           onClick={() => void handleAcaoSenha('finalizar')}
                         >
                           <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
-                          Finalizar Atendimento
+                          <span>Finalizar Atendimento</span>
                         </Button>
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-950/60 p-8 text-center space-y-4">
+                  <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-950/60 p-6 sm:p-8 text-center space-y-4">
                     <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-sky-400">
                       <Bell aria-hidden="true" className="h-6 w-6" />
                     </div>
@@ -653,6 +659,7 @@ export default function AtendentePage() {
                     <Button
                       variant="primary"
                       size="lg"
+                      className="w-full sm:w-auto"
                       disabled={
                         !guicheId ||
                         fila.total === 0 ||
@@ -664,14 +671,14 @@ export default function AtendentePage() {
                       onClick={() => void handleChamarProximo()}
                     >
                       <Bell aria-hidden="true" className="h-4 w-4" />
-                      Chamar Próximo
+                      <span>Chamar Próximo</span>
                     </Button>
                   </div>
                 )}
               </Card>
             </div>
 
-            <aside className="lg:col-span-4 space-y-6">
+            <aside className="lg:col-span-4 space-y-5 sm:space-y-6">
               <Card
                 titulo="Fila de Espera"
                 subtitulo="Senhas aguardando chamada hoje"
@@ -682,7 +689,7 @@ export default function AtendentePage() {
                       <Users aria-hidden="true" className="h-4 w-4 text-sky-400" />
                       Total aguardando
                     </span>
-                    <span className="font-mono text-2xl font-bold text-white">
+                    <span className="tabular-nums text-2xl font-bold text-white">
                       {fila.total}
                     </span>
                   </div>
@@ -692,13 +699,13 @@ export default function AtendentePage() {
                       (tipo) => (
                         <div
                           key={tipo}
-                          className="rounded-xl border border-slate-800 bg-slate-950/70 p-3 text-center space-y-1"
+                          className="rounded-xl border border-slate-800 bg-slate-950/70 p-3 text-center space-y-1 transition-colors duration-200 hover:border-slate-700"
                         >
                           <Badge tone={tomPrioridade(tipo)}>{tipo}</Badge>
-                          <p className="font-mono text-2xl font-bold text-white">
+                          <p className="tabular-nums text-2xl font-bold text-white">
                             {fila[tipo]}
                           </p>
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-[11px] text-slate-400 truncate">
                             {ROTULOS_TIPO_SENHA[tipo]}
                           </p>
                         </div>
@@ -730,22 +737,22 @@ export default function AtendentePage() {
                   </div>
 
                   <dl className="space-y-2 border-t border-slate-800 pt-3 text-xs text-slate-400">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <dt>Última chamada do ciclo</dt>
                       <dd className="font-semibold text-slate-200">
                         {resumo?.ultima_prioridade_chamada ?? 'Nenhuma hoje'}
                       </dd>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <dt>Prazo pós 2ª chamada</dt>
-                      <dd className="font-semibold text-slate-200">
+                      <dd className="font-semibold text-slate-200 tabular-nums">
                         {formatarDuracao(limiteAbandono)}
                       </dd>
                     </div>
                     {resumo?.expediente && (
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <dt>Expediente</dt>
-                        <dd className="font-semibold text-slate-200">
+                        <dd className="font-semibold text-slate-200 tabular-nums">
                           {resumo.expediente.expediente_inicio} –{' '}
                           {resumo.expediente.expediente_fim}
                         </dd>

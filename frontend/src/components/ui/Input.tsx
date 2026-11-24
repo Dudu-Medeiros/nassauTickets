@@ -43,8 +43,8 @@ export function Input({
         required={required}
         aria-invalid={erro ? true : undefined}
         aria-describedby={describedBy || undefined}
-        className={`w-full rounded-xl border bg-slate-900 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:border-sky-400 disabled:opacity-50 ${
-          erro ? 'border-rose-500' : 'border-slate-700 hover:border-slate-600'
+        className={`w-full min-h-10 rounded-xl border bg-slate-950/80 px-3.5 py-2 text-sm text-slate-100 placeholder:text-slate-500 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:border-sky-400 disabled:opacity-50 ${
+          erro ? 'border-rose-500' : 'border-slate-700 hover:border-slate-500'
         } ${className}`}
         {...rest}
       />

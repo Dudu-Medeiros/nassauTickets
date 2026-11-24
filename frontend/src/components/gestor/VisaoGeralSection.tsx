@@ -140,39 +140,42 @@ export function VisaoGeralSection({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-700">
           <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
             Senhas Emitidas
           </p>
-          <p className="mt-2 font-mono text-3xl font-bold text-white">
+          <p className="mt-2 tabular-nums text-3xl font-bold text-white">
             {g.emitidas}
           </p>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 tabular-nums">
             Em aberto: <strong className="text-slate-200">{g.em_aberto}</strong>
           </p>
         </Card>
 
-        <Card className="p-5 border-emerald-500/30">
+        <Card className="p-5 border-emerald-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/50">
           <p className="text-xs font-medium uppercase tracking-wider text-emerald-300">
             Atendidas
           </p>
-          <p className="mt-2 font-mono text-3xl font-bold text-emerald-200">
+          <p className="mt-2 tabular-nums text-3xl font-bold text-emerald-200">
             {g.atendidas}
           </p>
-          <p className="mt-1 text-xs text-slate-400">
-            Taxa: <strong className="text-emerald-300">{g.taxa_atendimento_percentual}%</strong>
+          <p className="mt-1 text-xs text-slate-400 tabular-nums">
+            Taxa:{' '}
+            <strong className="text-emerald-300">
+              {g.taxa_atendimento_percentual}%
+            </strong>
           </p>
         </Card>
 
-        <Card className="p-5 border-rose-500/30">
+        <Card className="p-5 border-rose-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-500/50">
           <p className="text-xs font-medium uppercase tracking-wider text-rose-300">
             Não Compareceu
           </p>
-          <p className="mt-2 font-mono text-3xl font-bold text-rose-200">
+          <p className="mt-2 tabular-nums text-3xl font-bold text-rose-200">
             {g.nao_compareceu}
           </p>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 tabular-nums">
             Taxa:{' '}
             <strong className="text-rose-300">
               {g.taxa_nao_comparecimento_percentual}%
@@ -180,11 +183,11 @@ export function VisaoGeralSection({
           </p>
         </Card>
 
-        <Card className="p-5 border-amber-500/30">
+        <Card className="p-5 border-amber-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-500/50">
           <p className="text-xs font-medium uppercase tracking-wider text-amber-300">
             Descartadas (17h)
           </p>
-          <p className="mt-2 font-mono text-3xl font-bold text-amber-200">
+          <p className="mt-2 tabular-nums text-3xl font-bold text-amber-200">
             {g.descartadas_fim_expediente}
           </p>
           <p className="mt-1 text-xs text-slate-400">
@@ -192,15 +195,15 @@ export function VisaoGeralSection({
           </p>
         </Card>
 
-        <Card className="p-5 border-sky-500/30 col-span-2 lg:col-span-1">
+        <Card className="p-5 border-sky-500/30 sm:col-span-2 lg:col-span-1 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-500/50">
           <p className="text-xs font-medium uppercase tracking-wider text-sky-300 flex items-center gap-1.5">
-            <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-            Tempo Médio (TM)
+            <Clock aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+            <span>Tempo Médio (TM)</span>
           </p>
-          <p className="mt-2 font-mono text-3xl font-bold text-sky-200">
+          <p className="mt-2 tabular-nums text-3xl font-bold text-sky-200">
             {tmGeral.tm_formatado ?? '--:--'}
           </p>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 tabular-nums">
             Espera (TME):{' '}
             <strong className="text-slate-200">
               {tmGeral.tme_formatado ?? '--:--'}
@@ -213,16 +216,16 @@ export function VisaoGeralSection({
         titulo="Quantitativo e Tempo Médio por Prioridade"
         subtitulo={`Período: ${quantitativo.filtro.data_inicio} a ${quantitativo.filtro.data_fim}`}
         acao={
-          <div className="flex flex-wrap items-center gap-2">
+          <>
             <Button variant="secondary" size="sm" onClick={handleExportarCsv}>
               <FileSpreadsheet aria-hidden="true" className="h-4 w-4" />
-              Exportar CSV
+              <span>Exportar CSV</span>
             </Button>
             <Button variant="secondary" size="sm" onClick={handleExportarJson}>
               <Download aria-hidden="true" className="h-4 w-4" />
-              JSON
+              <span>JSON</span>
             </Button>
-          </div>
+          </>
         }
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -234,13 +237,13 @@ export function VisaoGeralSection({
             return (
               <div
                 key={tipo}
-                className="rounded-2xl border border-slate-800 bg-slate-950/70 p-5 space-y-4"
+                className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5 space-y-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-700"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <Badge tone={tomTipo(tipo)}>
                     {tipo} — {ROTULOS_TIPO_SENHA[tipo]}
                   </Badge>
-                  <span className="font-mono text-xs text-slate-400">
+                  <span className="tabular-nums text-xs text-slate-400">
                     {dadosQ.atendidas}/{dadosQ.emitidas} atend.
                   </span>
                 </div>
@@ -248,7 +251,7 @@ export function VisaoGeralSection({
                 <div>
                   <div className="flex items-center justify-between text-xs mb-1.5">
                     <span className="text-slate-400">Taxa de atendimento</span>
-                    <span className="font-semibold text-slate-200">
+                    <span className="font-semibold text-slate-200 tabular-nums">
                       {percentual}%
                     </span>
                   </div>
@@ -261,46 +264,46 @@ export function VisaoGeralSection({
                     className="h-2 w-full rounded-full bg-slate-800 overflow-hidden"
                   >
                     <div
-                      className={`h-full rounded-full transition-all ${corBarraTipo(tipo)}`}
+                      className={`h-full rounded-full transition-all duration-500 ${corBarraTipo(tipo)}`}
                       style={{ width: `${Math.min(100, percentual)}%` }}
                     />
                   </div>
                 </div>
 
-                <dl className="grid grid-cols-2 gap-2.5 border-t border-slate-800 pt-3 text-xs">
+                <dl className="grid grid-cols-2 gap-3 border-t border-slate-800 pt-3 text-xs">
                   <div>
                     <dt className="text-slate-500">Emitidas</dt>
-                    <dd className="font-mono text-sm font-semibold text-white">
+                    <dd className="tabular-nums text-sm font-semibold text-white">
                       {dadosQ.emitidas}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-slate-500">Atendidas</dt>
-                    <dd className="font-mono text-sm font-semibold text-emerald-300">
+                    <dd className="tabular-nums text-sm font-semibold text-emerald-300">
                       {dadosQ.atendidas}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-slate-500">Não compareceu</dt>
-                    <dd className="font-mono text-sm font-semibold text-rose-300">
+                    <dd className="tabular-nums text-sm font-semibold text-rose-300">
                       {dadosQ.nao_compareceu}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-slate-500">Descartadas</dt>
-                    <dd className="font-mono text-sm font-semibold text-amber-300">
+                    <dd className="tabular-nums text-sm font-semibold text-amber-300">
                       {dadosQ.descartadas_fim_expediente}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-slate-500">Tempo Médio (TM)</dt>
-                    <dd className="font-mono text-sm font-semibold text-sky-300">
+                    <dd className="tabular-nums text-sm font-semibold text-sky-300">
                       {dadosTm.tm_formatado ?? '--:--'}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-slate-500">Espera Média (TME)</dt>
-                    <dd className="font-mono text-sm font-semibold text-slate-200">
+                    <dd className="tabular-nums text-sm font-semibold text-slate-200">
                       {dadosTm.tme_formatado ?? '--:--'}
                     </dd>
                   </div>
@@ -326,7 +329,7 @@ export function VisaoGeralSection({
           {resultadoEncerramento && (
             <Alert variant="success" titulo="Expediente encerrado">
               <p>{resultadoEncerramento.mensagem}</p>
-              <p className="mt-1 text-xs">
+              <p className="mt-1 text-xs tabular-nums">
                 Descartadas: <strong>{resultadoEncerramento.total_descartadas}</strong>{' '}
                 | Em atendimento mantidas:{' '}
                 <strong>{resultadoEncerramento.total_em_atendimento_mantidas}</strong>
@@ -335,7 +338,7 @@ export function VisaoGeralSection({
           )}
 
           {confirmandoEncerramento ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-950/30 p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-950/30 p-4 animate-fade-in">
               <div className="flex items-start gap-2.5 text-sm text-amber-100">
                 <ShieldAlert aria-hidden="true" className="h-5 w-5 shrink-0 mt-0.5" />
                 <p>
@@ -344,33 +347,36 @@ export function VisaoGeralSection({
                   na auditoria.
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
                 <Button
                   variant="secondary"
                   size="sm"
+                  className="w-full sm:w-auto"
                   disabled={encerrando}
                   onClick={() => setConfirmandoEncerramento(false)}
                 >
-                  Cancelar
+                  <span>Cancelar</span>
                 </Button>
                 <Button
                   variant="danger"
                   size="sm"
+                  className="w-full sm:w-auto"
                   carregando={encerrando}
                   textoCarregando="Encerrando..."
                   onClick={() => void handleEncerrarExpediente()}
                 >
-                  Confirmar encerramento
+                  <span>Confirmar encerramento</span>
                 </Button>
               </div>
             </div>
           ) : (
             <Button
               variant="secondary"
+              className="w-full sm:w-auto"
               onClick={() => setConfirmandoEncerramento(true)}
             >
               <Power aria-hidden="true" className="h-4 w-4 text-amber-300" />
-              Executar encerramento de expediente
+              <span>Executar encerramento de expediente</span>
             </Button>
           )}
         </div>
